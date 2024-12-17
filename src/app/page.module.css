@@ -1,0 +1,25 @@
+
+.logo_container{
+  margin: 0 0 0 30px;
+  display: flex;
+  align-items: center;
+}
+.logo_image{
+  position: relative;
+  width: 130px;
+  height: 130px;
+}
+.logo_container h1{
+  margin-left: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #444;
+}
+
+
+.img_container{
+  position: relative ;    
+  width: 100%;
+  height: 80vh;
+  overflow: hidden;
+}

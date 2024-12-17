@@ -1,14 +1,11 @@
-import { Button, Grid2 } from "@mui/material"
+import { Grid2 } from "@mui/material"
 import Image from "next/image"
-import IdAndPw from "./(auth)/components/IdAndPw"
-import LinkResetPwButton from "./(auth)/components/LinkResetPwButton"
 
 
-const Home = () => {
-  
+const Layout = ({children}) => {
+
   return(
-    <div>
-      <Grid2 container className="">
+    <Grid2 container className="">
         <Grid2 size={8} className="hidden md:block">
           <div className="ml-7 flex items-center">
             <div className="relative w-32 h-32">
@@ -34,19 +31,12 @@ const Home = () => {
             justify-center flex items-center h-full
           ">
             <div className="w-4/6">
-              <h2 className="font-bold text-2xl text-gray-700">
-                Welcome to Thehanda!
-              </h2>
-              <h3 className="mt-1 text-sm">
-                로그인해서 어플을 관리하세요.
-              </h3>
-              <IdAndPw />
+              {children}
             </div>
           </div>
         </Grid2>
       </Grid2>
-    </div>
   )
-} 
+}
 
-export default Home
+export default Layout
