@@ -8,8 +8,12 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 import LinkResetPwButton from "./LinkResetPwButton";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { loginWithEmailPw } from "../service/auth";
+import { useEffect } from "react";
+import { useAuth } from "@/provider/AuthProvider";
 
 const IdAndPw = () => {
+  const {profile} = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [pw, setPw] = useState("")
@@ -17,15 +21,18 @@ const IdAndPw = () => {
 
   const [isPwVisible, setIsPwVisible] = useState(false)
 
+  useEffect(()=> {
+    if(profile && profile.display_name)
+      router.push("/hallway")
+  },[profile])
+
 
   const login = async () => {
-    const {error, data} = await supabase.auth.signInWithPassword({
-      email: email,
-      password: pw
-    })
-
-    if(error){
-      console.error(error)
+    try{
+      await loginWithEmailPw(email, pw)
+      router.push("/hallway")
+    } catch(error){
+      alert(error)
     }
   }
 

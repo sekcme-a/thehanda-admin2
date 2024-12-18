@@ -6,6 +6,7 @@ import { useState } from "react"
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
 import { useRouter } from "next/navigation";
+import { isEmailExists, signInWithEmailPw } from "../service/auth";
 
 const SignInWithIdAndPw = () => {
   const router = useRouter()
@@ -16,8 +17,23 @@ const SignInWithIdAndPw = () => {
   const [isConfirmPwVisible, setIsConfirmPwVisible] = useState(false)
 
   
-  const signIn = () => {
-    
+  const signIn = async () => {
+    try{
+      if(pw!==confirmPw)
+        alert("재확인 비밀번호가 다릅니다.")
+      else{
+        const isEmailExist = await isEmailExists(email)
+        if(isEmailExist){
+          alert("이미 등록된 이메일입니다.")
+          return; 
+        }
+
+        await signInWithEmailPw(email, pw)
+        alert("해당 이메일로 인증 메일을 보냈습니다. 이메일을 확인해주세요.")
+      }
+    }catch(error){
+      alert(error)
+    }
   }
 
   return(

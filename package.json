@@ -14,6 +14,8 @@
     "@mui/icons-material": "^6.2.0",
     "@mui/material": "^6.2.0",
     "@supabase/supabase-js": "^2.47.8",
+    "bad-words": "^4.0.0",
+    "badwords-ko": "^1.0.4",
     "next": "15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

@@ -3,6 +3,7 @@
 import { Button, TextField } from "@mui/material"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { isEmailExists } from "../service/auth"
 
 
 
@@ -14,7 +15,16 @@ const ResetPassword = () => {
 
 
   const onSendEmailClick = async () => {
-     
+    try{
+      const isEmailExist = await isEmailExists(email)
+      if(!isEmailExist){
+        alert("해당 이메일이 존재하지 않습니다.")
+        return;
+      }
+
+    }catch(error) {
+      
+    }
   }
 
   return(

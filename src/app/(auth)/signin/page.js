@@ -21,6 +21,13 @@ const Signin = () => {
       <h4 className="text-sm text-blue-800">
         {`(비밀번호 찾기 시 메일 발송)`}
       </h4>
+      <h4 className="text-sm text-blue-800">
+        {`(비밀번호 찾기 시 메일 발송)`}
+      </h4>
+      <h4 className="text-sm text-blue-800">
+        {`!해당 이메일로 등록된 관리자 계정은 어플 계정과도 공유됩니다.
+        어플 계정과 다른 이메일로 등록하기를 권장합니다.`}
+      </h4>
       
       <SignInWithIdAndPw />
     </>

@@ -5,7 +5,6 @@ import LinkResetPwButton from "./(auth)/components/LinkResetPwButton"
 
 
 const Home = () => {
-  
   return(
     <div>
       <Grid2 container className="">
