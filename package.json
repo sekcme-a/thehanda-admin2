@@ -16,9 +16,12 @@
     "@supabase/supabase-js": "^2.47.8",
     "bad-words": "^4.0.0",
     "badwords-ko": "^1.0.4",
+    "browser-image-compression": "^2.0.2",
     "next": "15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.5",
+    "react-hot-toast": "^2.4.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

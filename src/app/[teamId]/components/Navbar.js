@@ -33,7 +33,7 @@ const NavBar = () => {
         <ListItemIcon>
           <GroupIcon />
         </ListItemIcon>
-        <ListItemText primary="팀 관리" sx={{pr:4}}/>
+        <ListItemText primary="팀 관리" sx={{pr:4}} className="font-bold"/>
         {openedItem === 1 ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
@@ -43,21 +43,21 @@ const NavBar = () => {
             <ListItemIcon>
               <AccountBoxOutlinedIcon />
             </ListItemIcon>
-            <ListItemText primary="팀 프로필" />
+            <ListItemText primary="팀 프로필" className="font-bold"/>
           </ListItemButton>
 
           <ListItemButton sx={{ pl: 4, pr: 4 }} onClick={() => onClick('team/manage')}>
             <ListItemIcon>
               <Diversity3Icon />
             </ListItemIcon>
-            <ListItemText primary="구성원 관리" />
+            <ListItemText primary="구성원 관리" className="font-bold" />
           </ListItemButton>
         </List>
       </Collapse>
 
       {/* 대쉬보드 */}
       <ListItemButton onClick={() => onClick('dashboard')}>
-        <ListItemText primary="대쉬보드" />
+        <ListItemText primary="대쉬보드" className="font-bold" />
       </ListItemButton>
     </List>
   );
