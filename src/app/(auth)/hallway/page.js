@@ -65,18 +65,18 @@ const Hallway = () => {
               onClick={()=>onTeamClick(team.id)}
             >
               <Image
-                src={team.profile ?? null}
-                width={30}
-                height={30}
+                src={team.image}
+                width={50}
+                height={50}
                 alt="프로필"
               />
-              <p>{team.name}</p>
+              <p className="ml-3 font-bold">{team.name}</p>
             </li>
           ))
         }
       </ul>
 
-      <p>어드민 TEAM을 이용해 컨텐츠를 관리하세요.</p>
+      <p>더한다 TEAM을 이용해 컨텐츠를 관리하세요.</p>
     </>
   )
 }

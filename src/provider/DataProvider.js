@@ -6,12 +6,14 @@ import { useEffect } from "react"
 import { useContext } from "react"
 import { createContext } from "react"
 import { fetchTeamData } from "./dataService"
-import { sendAlert } from "@/utils/sendAlert"
+import { showAlert } from "@/utils/showAlert"
+import { useAuth } from "./AuthProvider"
 
 const DataContext = createContext()
 
 export default function DataProvider ({children}) {
   const {teamId} = useParams()
+  const {session} = useAuth()
 
   const [myTeam, setMyTeam] = useState({})
 
@@ -21,17 +23,19 @@ export default function DataProvider ({children}) {
         const result = await fetchTeamData(teamId)
         setMyTeam(result)
       } catch(e){
-        sendAlert(e)
+        showAlert(e)
       }
     }
     if(teamId) fetchTeam()
   },[teamId])
+
+
   
 
   return(
     <DataContext.Provider
       value={{
-        myTeam
+        myTeam, setMyTeam
       }}
     >
       {children}

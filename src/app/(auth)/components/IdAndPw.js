@@ -56,6 +56,7 @@ const IdAndPw = () => {
           label="비밀번호"
           variant="outlined"
           className="mt-3"
+          style={{marginTop: 10}}
           type={isPwVisible ? "text" : "password"}
           value={pw}
           onChange={(e) => setPw(e.target.value)}
@@ -94,6 +95,7 @@ const IdAndPw = () => {
         fullWidth
         variant="contained"
         className="mt-3 font-bold"
+        style={{marginTop: 10}}
         color="secondary"
         onClick={()=>router.push("/signin")}
       >

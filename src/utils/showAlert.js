@@ -1,6 +1,6 @@
 
 
 
-export const sendAlert = (error) => {
+export const showAlert = (error) => {
   alert(error?.message || JSON.stringify(error))
 }

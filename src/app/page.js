@@ -30,7 +30,7 @@ const Home = () => {
         </Grid2>
         <Grid2 size={{md: 4, sm: 12, xs:12}} className="bg-white">
           <div className="
-            justify-center flex items-center h-full
+            justify-center flex items-center h-screen
           ">
             <div className="w-4/6">
               <h2 className="font-bold text-2xl text-gray-700">
