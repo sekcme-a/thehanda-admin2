@@ -23,6 +23,7 @@
     "badwords-ko": "^1.0.4",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
+    "mdi-material-ui": "^7.9.3",
     "next": "15.1.0",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",

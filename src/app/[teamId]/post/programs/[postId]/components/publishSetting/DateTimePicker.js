@@ -1,6 +1,6 @@
 import { MobileDateTimePicker } from '@mui/x-date-pickers'
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { TextField, Switch, Grid2 } from '@mui/material';
 
 const DateTimePicker = ({
