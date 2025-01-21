@@ -13,12 +13,12 @@ const PublishSetting = ({
 
   return(
     <>
-      <DateTimePicker
+      {/* <DateTimePicker
         {...{postValues, setPostValues}}
         type="hasReserve"
         value="startAt"
         text="예약게재일"
-      />
+      /> */}
       <div className="h-3" />
       <DateTimePicker 
         {...{postValues, setPostValues}} 

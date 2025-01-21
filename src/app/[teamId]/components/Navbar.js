@@ -15,6 +15,7 @@ import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
 
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 
@@ -118,11 +119,11 @@ const NavBar = () => {
           </ListItemButton>
         </List>
           <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("post/surveys")}>
+            <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("post/storys")}>
               <ListItemIcon>
-                <EditIcon />
+                <AutoStoriesOutlinedIcon />
               </ListItemIcon>
-              <ListItemText primary="설문조사 관리" />
+              <ListItemText primary="스토리 관리" />
             </ListItemButton>
           </List>
 

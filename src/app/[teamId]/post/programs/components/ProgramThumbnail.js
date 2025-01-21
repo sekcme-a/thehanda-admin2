@@ -7,7 +7,7 @@ import { publishPost } from "../[postId]/service/handlePost"
 
 
 
-const ProgramThumbnail = ({data, reloadPage}) => {
+const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
   const {teamId} = useParams()
   const router = useRouter()
 
@@ -41,18 +41,20 @@ const ProgramThumbnail = ({data, reloadPage}) => {
   return(
     <Card sx={{p:"10px 5px", cursor:"pointer", position:"relative"}} 
     >
-      <ThumbnailMenu postId={data.id} reloadPage={reloadPage}/>
-      <CardMedia
-        component="img"
-        height="140px"
-        style={{height:"140px"}}
-        image={data.images[0]}
-        alt={data.title}
-        onClick={()=>router.push(`/${teamId}/post/programs/${data.id}`)}
-      />
+      <ThumbnailMenu postId={data.id} reloadPage={reloadPage} type={type}/>
+      {type!=="announcements" &&
+        <CardMedia
+          component="img"
+          height="140px"
+          style={{height:"140px"}}
+          image={data.images[0]}
+          alt={data.title}
+          onClick={()=>router.push(`/${teamId}/post/${type}/${data.id}`)}
+        />
+      }
       <CardContent sx={{p:"5px"}} 
         style={{paddingBottom: "5px"}}
-        onClick={()=>router.push(`/${teamId}/post/programs/${data.id}`)}
+        onClick={()=>router.push(`/${teamId}/post/${type}/${data.id}`)}
       >
         <div className="flex items-center">
           {data.program_condition==="unpublished" ? 

@@ -53,10 +53,8 @@ const EditPost = () => {
 
   const fetchData = async () => {
     try{
-      console.log("fetch")
       setLoading(true)
       const data = await fetchPost(teamId, postId)
-      console.log(data.program_post_data)
       setPostValues({
         ...data.program_post_data,
         hasReserve: data.program_reserve_start_at ? true : false,

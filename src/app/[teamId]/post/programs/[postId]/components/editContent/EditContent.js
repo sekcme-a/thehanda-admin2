@@ -41,8 +41,8 @@ const EditContent = ({
       />
 
       <TextInput 
-        title="키워드" 
-        placeholder="검색 키워드를 입력하세요. (띄어쓰기 없이 쉼표로 구분)" 
+        title="태그" 
+        placeholder="검색 태그를 입력하세요. (띄어쓰기 없이 쉼표로 구분)" 
         id="tags"
         {...{postValues, setPostValues}} 
       />

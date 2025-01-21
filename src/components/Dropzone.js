@@ -127,7 +127,10 @@ const Dropzone = ({
               :
                 <>
                   {file.type.startsWith("image/") ? (
-                    <img src={file.preview} alt={file.name} className="w-full h-full object-cover" />
+                    <img
+                      src={file.preview} alt={file.name} 
+                      className="w-full h-full object-cover max-h-32" 
+                    />
                   ) : (
                     <div className="
                       w-full h-full flex flex-wrap items-center justify-center 

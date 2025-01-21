@@ -136,8 +136,8 @@ const Programs = () => {
           <MuiTextField
             template="search"
             outlined
-            label="키워드 검색"
-            placeholder="키워드를 통해 검색됩니다."
+            label="제목/태그 검색"
+            placeholder="제목와 태그를 통해 검색됩니다."
             value={searchInput}
             setValue={setSearchInput}
             sx={{mr:"10px"}}

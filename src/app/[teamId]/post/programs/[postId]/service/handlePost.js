@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase"
 
-export const savePost = async (teamId, postId, postValues, images) => {
+export const saveProgramPost = async (teamId, postId, postValues, images) => {
   try{
     const {error} = await supabase
       .from("posts")

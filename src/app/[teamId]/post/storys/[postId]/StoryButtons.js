@@ -1,18 +1,15 @@
-'use client'
-
 import { useAuth } from "@/provider/AuthProvider"
+import { showAlert } from "@/utils/showAlert"
 import { uploadFilesToSupabase } from "@/utils/supabase/supabaseStorageHandle"
 import { Button } from "@mui/material"
-import { useState } from "react"
-import { v4 as uuidV4 } from "uuid"
-import { publishPost, saveProgramPost } from "../../service/handlePost"
-import { showAlert } from "@/utils/showAlert"
 import { useParams, useRouter } from "next/navigation"
+import { useState } from "react"
 
+import { v4 as uuidV4 } from "uuid"
+import { publishStory, saveStory } from "./storyService"
 
-
-const PostButtons = ({
-  postValues, setPostValues
+const StoryButtons = ({
+  title, text, images,tags, condition, setCondition, showLikes, allowComments
 }) => {
   const router = useRouter()
   const {teamId, postId} = useParams()
@@ -22,63 +19,64 @@ const PostButtons = ({
   const [hasSaved, setHasSaved] = useState(postId==="new" ? false : true)
 
   const onSaveClick = async () => {
-    if(postValues.title===""||postValues.title===null){
-      alert("제목을 입력해주세요");return;
+    if(title===""||title===null){
+      alert("제목을 입력해주세요"); return
     }
-    setIsLoading(true)
+
     try{
-      const postUid = postId!=="new" ? postId : uuidV4()
+      setIsLoading(true)
+      const postUid = postId !=="new" ? postId : uuidV4()
 
       const imgUrlList = await uploadFilesToSupabase(
-        postValues.images, `${session.user.id}/teams/program/${postUid}`
+        images, `${session.user.id}/teams/story/${postUid}`
       )
-      await saveProgramPost(teamId, postUid, postValues, imgUrlList)
+
+      await saveStory(
+        teamId, postUid, 
+        {
+          title, text, images, showLikes, allowComments,tags
+        },
+        imgUrlList
+      )
       alert("저장되었습니다.")
-      if(!hasSaved) router.push(`/${teamId}/post/programs/${postUid}`)
-    }catch(e){
-      showAlert(e)
+
+      if(!hasSaved) router.push(`/${teamId}/post/storys/${postUid}`)
+    }catch(error){
+      showAlert(error)
     }finally{
       setIsLoading(false)
     }
-
   }
 
   const onPublishClick = async () => {
     try{
       await onSaveClick()
       setIsLoading(true)
-      await publishPost(teamId, postId)
-      setPostValues(prev => ({
-        ...prev,
-        condition:"published"
-      }))
+      await publishStory(teamId, postId)
+      setCondition("published")
       alert("게재되었습니다.")
-    } catch(e){
-      showAlert(e)
+    }catch(error){
+      showAlert(error)
     }finally{
       setIsLoading(false)
     }
   }
-  
+
   const onUnpublishClick = async () => {
     try{
-      await onSaveClick()
       setIsLoading(true)
-      await publishPost(teamId, postId, "unpublished")
-      setPostValues(prev => ({
-        ...prev,
-        condition: "unpublished"
-      }))
+      await publishStory(teamId, postId, "unpublished")
+      setCondition("unpublished")
       alert("게재 취소되었습니다.")
-    } catch(e){
-      showAlert(e)
+    }catch(error){
+      showAlert(error)
     }finally{
       setIsLoading(false)
     }
   }
 
   return(
-    <>
+    <div className="mt-10">
       <Button
         variant="contained"
         size="small"
@@ -88,21 +86,21 @@ const PostButtons = ({
       >
         저장
       </Button>
+
       <Button
         variant="contained"
         size="small"
-        onClick={postValues.condition==="unpublished" ? 
+        onClick={condition==="unpublished" ? 
           onPublishClick : onUnpublishClick
         }
         color="secondary"
-        disabled={!hasSaved||isLoading}
+        disabled={isLoading || !hasSaved}
       >
-        {postValues.condition==="unpublished" ? 
-          "게재" : "게재 취소"
-        }
+        {condition==="unpublished" ? "게재" : "게재 취소"}
       </Button>
-    </>
+    </div>
   )
+  
 }
 
-export default PostButtons
+export default StoryButtons

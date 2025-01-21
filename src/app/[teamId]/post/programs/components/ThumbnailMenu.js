@@ -20,7 +20,7 @@ import { copyProgram, deleteProgram } from "../service/programThumbnail";
 import { showAlert } from "@/utils/showAlert";
 import { useAuth } from "@/provider/AuthProvider";
 
-const ThumbnailMenu = ({postId, reloadPage}) => {
+const ThumbnailMenu = ({postId, reloadPage, type="programs"}) => {
   const router = useRouter()
   const {teamId} = useParams()
   const {role} = useAuth()
@@ -28,6 +28,10 @@ const ThumbnailMenu = ({postId, reloadPage}) => {
   const [anchorEl, setAnchorEl] = useState(null)
 
   const open=Boolean(anchorEl)
+
+  
+
+
 
   const onCopyClick = async () => {
     if(confirm("해당 게시물을 복사하시겠습니까?")){
@@ -79,27 +83,32 @@ const ThumbnailMenu = ({postId, reloadPage}) => {
         }}
       >
         <MenuItem 
-          onClick={()=>router.push(`/${teamId}/post/programs/${postId}`)} 
+          onClick={()=>router.push(`/${teamId}/post/${type}/${postId}`)} 
           sx={{px: 2, py:.5}}
         >
           <BorderColorOutlinedIcon sx={{fontSize:16, mr:2}}/>
           편집
         </MenuItem>
-        <MenuItem 
-          onClick={onCopyClick} 
-          sx={{px: 2, py:.5}}
-        >
-          <ContentCopyIcon sx={{fontSize:16, mr:2}}/>
-          복사
-        </MenuItem>
+        {type==="programs"
+        &&
+          <MenuItem 
+            onClick={onCopyClick} 
+            sx={{px: 2, py:.5}}
+          >
+            <ContentCopyIcon sx={{fontSize:16, mr:2}}/>
+            복사
+          </MenuItem>
+        }
 
-        <MenuItem 
-          onClick={onCodeClick} 
-          style={{px: 2, py: .5}}
-        >
-          <DifferenceOutlinedIcon sx={{fontSize:16, mr:2}}/>
-          코드 복사
-        </MenuItem>
+        {type!=="announcements" &&
+          <MenuItem 
+            onClick={onCodeClick} 
+            style={{px: 2, py: .5}}
+          >
+            <DifferenceOutlinedIcon sx={{fontSize:16, mr:2}}/>
+            코드 복사
+          </MenuItem>
+        }
 
         <MenuItem 
           onClick={onDeleteClick} 
