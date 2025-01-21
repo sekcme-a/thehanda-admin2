@@ -13,7 +13,7 @@ export const saveProgramPost = async (teamId, postId, postValues, images) => {
         images: images,
         program_is_main: postValues.isMain,
         program_condition: postValues.condition,
-        program_reserve_start_at: postValues.hasReserve ? postValues.startAt.toISOString() : null,
+        // program_reserve_start_at: postValues.hasReserve ? postValues.startAt.toISOString() : null,
         program_saved_at: new Date().toISOString(),
         program_apply_start_at: postValues.hasProgramStart ? postValues.programStartAt.toISOString() : null,
         program_post_data: {
@@ -52,31 +52,31 @@ export const fetchPost = async (teamId, postId) => {
 
     if(updatedData){
       //예약 게재일이 지났으면 자동 게재
-      if(data.program_reserve_start_at && 
-        new Date(data.program_reserve_start_at) < new Date() &&
-        data.program_condition==="unpublished"
-      ){
-          updatedData={
-            ...updatedData, 
-            program_condition: "published",
-            program_post_data: {
-              ...data.program_post_data,
-              condition:"published"
-            }
-          }
-          const {error: updateError} = await supabase
-            .from("posts")
-            .update({
-              program_condition: "published", 
-              program_post_data: {
-                ...data.program_post_data,
-                condition:"published"
-              }
-            })
-            .eq("program_team_id", teamId)
-            .eq("id", postId)
-          if(updateError)console.error(updateError)
-        }
+      // if(data.program_reserve_start_at && 
+      //   new Date(data.program_reserve_start_at) < new Date() &&
+      //   data.program_condition==="unpublished"
+      // ){
+      //     updatedData={
+      //       ...updatedData, 
+      //       program_condition: "published",
+      //       program_post_data: {
+      //         ...data.program_post_data,
+      //         condition:"published"
+      //       }
+      //     }
+      //     const {error: updateError} = await supabase
+      //       .from("posts")
+      //       .update({
+      //         program_condition: "published", 
+      //         program_post_data: {
+      //           ...data.program_post_data,
+      //           condition:"published"
+      //         }
+      //       })
+      //       .eq("program_team_id", teamId)
+      //       .eq("id", postId)
+      //     if(updateError)console.error(updateError)
+      //   }
     }
     return updatedData
   } catch (e){

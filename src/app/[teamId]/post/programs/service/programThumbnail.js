@@ -25,7 +25,7 @@ export const copyProgram = async (teamId, postId) => {
         created_at: new Date().toISOString(),
         program_condition: "unpublished",
         program_saved_at: new Date().toISOString(),
-        program_reserve_start_at: null,
+        // program_reserve_start_at: null,
         program_post_data: {
           ...data.program_post_data,
           condition:"unpublished"
