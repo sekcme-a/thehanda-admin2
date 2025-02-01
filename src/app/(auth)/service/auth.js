@@ -26,7 +26,7 @@ export const signInWithEmailPw = async (email, pw) => {
       email,
       password: pw,
       options: {
-        emailRedirectTo: "https://monew.co.kr/auth/link-verified"
+        emailRedirectTo: "https://thehanda.net/email-verified"
       }
     })
 
