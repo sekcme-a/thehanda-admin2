@@ -6,6 +6,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import AuthProvider from "@/provider/AuthProvider";
 import DataProvider from "@/provider/DataProvider";
 import theme from "@/theme";
+import NotificationProvider from "@/provider/NotificationProvider";
 
 
 const geistSans = Geist({
@@ -35,7 +36,9 @@ export default function RootLayout({ children }) {
            
               <AuthProvider>
                 <DataProvider>
-                  {children}
+                  <NotificationProvider>
+                    {children}
+                  </NotificationProvider>
                 </DataProvider>
               </AuthProvider>
      

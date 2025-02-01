@@ -10,6 +10,14 @@ const nextConfig = {
         search: '',
       },
     ],
+  },
+  async rewrites() {
+    return[
+      {
+        source: '/api/:path*',
+        destination: 'https://exp.host/--/api/v2/:path*'
+      }
+    ]
   }
 };
 

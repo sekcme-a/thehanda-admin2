@@ -99,6 +99,16 @@ const ThumbnailMenu = ({postId, reloadPage, type="programs"}) => {
             복사
           </MenuItem>
         }
+        {type==="programs"
+        &&
+          <MenuItem 
+            onClick={()=>router.push(`/${teamId}/result/${postId}`)} 
+            sx={{px: 2, py:.5}}
+          >
+            <ListAltIcon sx={{fontSize:16, mr:2}}/>
+            결과 보기
+          </MenuItem>
+        }
 
         {type!=="announcements" &&
           <MenuItem 
