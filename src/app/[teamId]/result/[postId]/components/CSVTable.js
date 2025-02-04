@@ -9,6 +9,7 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Router } from "mdi-material-ui";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 
 const CSVTable = ({
@@ -22,6 +23,32 @@ const CSVTable = ({
   const [filteredList, setFilteredList] = useState(data)
 
   const [isAllCheck, setIsAllCheck] = useState(false)
+
+  
+  useEffect(()=> {
+    if(filter==="all") {
+      setFilteredList(data)
+      return;
+    }
+    const list = data.map((item) => {
+      if(filter==="confirmedOnly"){
+        if(item.confirmed==="승인") return item
+      }
+      if(filter==="unconfirmedOnly"){
+        if(item.confirmed==="미승인") return item
+      }
+      if(filter==="rejectOnly"){
+        if(item.confirmed==="거절") return item
+      }
+      if(filter==="participatedOnly"){
+        if(item.participated) return item
+      }
+      if(filter==="unparticipatedOnly"){
+        if(item.participated===false) return item
+      }
+    }).filter(Boolean)
+    setFilteredList(list)
+  },[filter])
 
   const handleIsAllCheckChange = (e) => {
     setIsAllCheck(e.target.checked)
@@ -66,7 +93,8 @@ const CSVTable = ({
           >
               <MenuItem value="all" size='small'>전체</MenuItem>
               <MenuItem value="confirmedOnly" size='small'>신청 승인만</MenuItem>
-              <MenuItem value="unconfirmedOnly" size='small'>참여 미승인만</MenuItem>
+              <MenuItem value="unconfirmedOnly" size='small'>신청 미승인만</MenuItem>
+              <MenuItem value="rejectOnly" size='small'>신청 거절만</MenuItem>
               <MenuItem value="participatedOnly" size='small'>참여한 사용자만</MenuItem>
               <MenuItem value="unparticipatedOnly" size='small'>불참 사용자만</MenuItem>
           </Select>
@@ -131,7 +159,6 @@ const CSVTable = ({
             </tr>
           </thead>
 
-
           <tbody>
             {
               filteredList && filteredList.map((item, index) => {
@@ -175,7 +202,9 @@ const CSVTable = ({
           </tbody>
 
         </table>
-
+        {filteredList.length===0 && 
+          <p className="my-3 ml-5 ">신청 데이터가 없습니다.</p>
+        }
       </div>
 
 
