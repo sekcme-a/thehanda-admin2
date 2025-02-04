@@ -107,7 +107,7 @@ const CSVTable = ({
         >
           <thead className="font-bold  text-white bg-[#73685d]">
             <tr className="cursor-pointer">
-              <th className="text-left pl-4 pr-4 align-middle">
+              <th className="text-left px-2 align-middle">
                 <Checkbox
                   checked={isAllCheck}
                   onChange={handleIsAllCheckChange}
@@ -123,7 +123,7 @@ const CSVTable = ({
 
               {header?.map((item, index)=>{
                 return(
-                  <th key={index} className="text-left pl-4 pr-4 align-middle">
+                  <th key={index} className="text-left px-2 align-middle">
                       {item.label}
                   </th>
                 )
@@ -137,7 +137,7 @@ const CSVTable = ({
               filteredList && filteredList.map((item, index) => {
                 return(
                   <tr key={index}>
-                    <td className="p-4 align-middle">
+                    <td className="py-1 px-2 align-middle">
                       <Checkbox
                         checked = {checkedList.includes(item.id)}
                         onChange = {(event) => onCheckChange(event, item)}
@@ -155,8 +155,11 @@ const CSVTable = ({
                                 item[head.key]==="불참" ||item[head.key]==="미승인" ? 
                                 {color:'red'} :
                                 item[head.key]==="참여" ||item[head.key]==="승인" ? 
-                                {color:'blue'} : {} }
-                              className="p-4 align-middle"
+                                {color:'blue'} : 
+                                item[head.key]==="거절" ? 
+                                {color: 'gray'}
+                                : {} }
+                              className="py-1 px-2 align-middle"
                             >
                               {item[head.key]?.length>30 ? 
                               `${item[head.key].substr(0,30)}...` : item[head.key]}

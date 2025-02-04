@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { toYYYYMMDD_HHMM } from "@/utils/supabase/FormatTimeStamptz"
 
 
 
@@ -10,7 +11,7 @@ export const fetchResult = async (postId) => {
       .select()
       .eq("post_id", postId)
       .order("saved_at", {ascending: false})
-    console.log(applies)
+
     const result = await Promise.all(
       applies.map(async (apply) => {
         const {data: user} = await supabase
@@ -26,11 +27,12 @@ export const fetchResult = async (postId) => {
           confirmed:apply.condition === 1 ? "승인" : 
             apply.condition === 2 ? "거절" : "미승인",
           participated: apply.participated ? "참여" :
-            apply.condition=== 1 ? "불참" : "-",
+            apply.participated===null ? "-" : "불참",
           realName: !user ? "삭제된 유저" : user.program_profile?.realName ?? "-",
           phoneNumber: !user ? "삭제된 유저" : user.program_profile?.phoneNumber ?? "-",
           deleted: !user ? true : false,
-          displayName: !user ? "삭제된 유저" : user.display_name ?? "-"
+          displayName: !user ? "삭제된 유저" : user.display_name ?? "-",
+          savedAt: toYYYYMMDD_HHMM(apply.saved_at)
         }
       })
     )
@@ -74,21 +76,37 @@ export const refineResult = async (data) => {
 }
 
 
-export const updateApplyCondition = async (confirmApplyIds, condition) => {
+export const updateApplyCondition = async (confirmApplyId, condition) => {
   try {
-    for (const id of confirmApplyIds) {
+    // for (const id of confirmApplyIds) {
       const { error } = await supabase
         .from("program_apply")
-        .update({ condition })
-        .eq("id", id);
+        .update({ condition: condition })
+        .eq("id", confirmApplyId);
 
       if (error) {
-        console.error(`Error updating ID ${id}:`, error);
+        console.error(`Error updating ID ${confirmApplyId}:`, error);
         throw error;
       }
-    }
+    // }
   } catch (error) {
     console.error("Failed to update apply conditions:", error);
-    throw error;
+    // throw error;
   }
 };
+
+
+export const updateApplyParticipate = async (id, isParticipate) => {
+  try{
+    const {error} = await supabase
+      .from("program_apply")
+      .update({participated: isParticipate})
+      .eq("id", id)
+
+      if (error) {
+        throw error;
+      }
+  }catch(error) {
+    console.error("Failed to update apply participate:", error);
+  }
+}

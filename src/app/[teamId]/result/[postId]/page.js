@@ -6,7 +6,7 @@ import { useEffect } from "react"
 import { fetchPost } from "../../post/programs/[postId]/service/handlePost"
 import { useState } from "react"
 import FullScreenLoader from "@/components/FullScreenLoader"
-import { Button } from "@mui/material"
+import { Button, Dialog, TextField } from "@mui/material"
 
 
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
@@ -15,9 +15,11 @@ import PersonOffOutlinedIcon from '@mui/icons-material/PersonOffOutlined';
 import EditNotificationsOutlinedIcon from '@mui/icons-material/EditNotificationsOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import CSVTable from "./components/CSVTable"
-import { fetchResult, refineResult, updateApplyCondition } from "./service/resultService"
+import { fetchResult, refineResult, updateApplyCondition, updateApplyParticipate } from "./service/resultService"
 import { isNotificationEnabledForType, sendSupabaseNotificationAndGetNotificationId } from "@/utils/supabase/notificationService"
 import { useNotification } from "@/provider/NotificationProvider"
+import { PlaylistRemove } from "@mui/icons-material"
+import CustomNotificationDialog from "@/components/CustomNotificationDialog"
 
 const Result = () => {
   const {sendExpoSupabaseNotifications} = useNotification()
@@ -34,12 +36,23 @@ const Result = () => {
 
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
 
+
+  const [isConditionDialogOpen, setIsConditionDialogOpen] = useState(false)
+  const [progress, setProgress] = useState("")
+  const [isFinished, setIsFinished] = useState(false)
+
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+  const [rejectReason, setRejectReason] = useState("")
+
+  const [isCustomNotificationDialogOpen, setIsCustomNotificationDialogOpen] = useState(false)
+
   useEffect(()=> {
     fetchData()
   },[])
 
   const fetchData = async () => {
     try{
+      setIsLoading(true)
       const postData = await fetchPost(teamId, postId)
       setPost(postData)
 
@@ -53,6 +66,9 @@ const Result = () => {
         {key:"realName", label:"실명(프로필 상)"}, 
         {key:"displayName", label:"닉네임"}, 
         {key:"phoneNumber", label:"전화번호(프로필 상)"},
+        {key:"savedAt", label:"작성일자"},
+        {key:"confirmed", label:"승인여부"},
+        {key:"participated", label:"참여여부"},
         ...formData
       ])
 
@@ -77,15 +93,15 @@ const Result = () => {
       return;
     }    
     try{
-      if(confirm("신청 승인하시겠습니까?")){
+      if(confirm("신청 승인하시겠습니까?\n신청을 승인한 이후엔 취소할 수 없습니다.")){
         
-        const isSendAlarm = confirm("유저들에게 참여 확정 알림을 보내시겠습니까?\n취소 클릭 시, 알림 없이 참여 확정됩니다.\n(이미 참여 확정된 유저에게는 전송되지 않습니다.)")
+        const isSendAlarm = confirm("유저들에게 참여 확정 알림을 보내시겠습니까?\n취소 클릭 시, 알림 없이 참여 확정됩니다.\n(이미 참여 승인된 유저에게는 전송되지 않습니다.)")
 
         //미승인 상태의 데이터만
         const sendList = result.filter(item => 
           checkedList.includes(item.id) && item.confirmed==="미승인"
         )
-        console.log(sendList)
+
         const confirmApplys = sendList.map(item => ({
           userId: item.uid, displayName: item.displayName, realName: item.realName
         }))
@@ -103,40 +119,124 @@ const Result = () => {
               url:`/(group)/post/${postId}`
             }]
           },
-          "program"
+          "program",
+          {
+            expoMessage: `${post.title} 프로그램에 참여가 확정되었습니다.`,
+            onlySupabase: !isSendAlarm
+          }
         )
-//         const confirmApplyUids = sendList.map(item => item.uid)
-//         await updateApplyCondition(confirmApplyIds)
-//         for(const uid of confirmApplyUids){
-//           const notificationId = await sendSupabaseNotificationAndGetNotificationId(
-//             uid,
-//             {
-//               title: `[프로그램 참여 확정] ${postData.title}`,
-//               receiver_id: uid,
-//               message: `${postData.title} 프로그램에 참여가 확정되었습니다.
-// 신청 내용은 (마이페이지 > 신청 기록)에서 확인하실 수 있습니다.
-// 프로그램의 일정을 참고해서 잊지 말고 프로그램에 참여해주세요!
-// 해당 프로그램에 관심을 가져주셔서 감사합니다.`,
-//               buttons: [{
-//                 text:"프로그램 보러가기",
-//                 url:`/(group)/post/${postId}`
-//               }]
-//             }
-//           )
-//         }
 
-//         const isNotificationAllowed = await isNotificationEnabledForType(
-//           uid, "program"
-//         )
-        // if(isNotificationAllowd)
+        setIsConditionDialogOpen(true)
+        setIsFinished(false)
+        const confirmApplyIds = sendList.map(item => item.id)
+        setProgress(`신청 승인 처리중입니다. (0/${confirmApplyIds.length})`)
+        for(let i = 0; i < confirmApplyIds.length; i++) {
+          await updateApplyCondition(confirmApplyIds[i], 1)
+          setProgress(`신청 승인 처리중입니다. (${i+1}/${confirmApplyIds.length})`)
+        }
+        setProgress(`신청 승인 완료.`)
+        setIsFinished(true)
+        fetchData()
       }
     } catch(e){
       console.log(e)
     } 
   }
 
-  const onParticipatedClick = async () => {
+  const onRejectClick = async () => {
+    if(checkedList.length===0){
+      alert("선택된 유저가 없습니다.")
+      return;
+    }    
+    setIsRejectDialogOpen(true)
+  }
+  const onRejectButtonClick = async () => {
+    setIsRejectDialogOpen(false)
+    if(!confirm("신청 거절하시겠습니까?\n 신청을 거절한 이유엔 취소할 수 없습니다.")) return;
+    try{
+        
+      const isSendAlarm = confirm("유저들에게 신청 거절 알림을 보내시겠습니까?\n취소 클릭 시, 알림 없이 참여 거절됩니다.\n(이미 승인된 유저들은 거절되지 않으며, 알림이 전송되지 않습니다.) ")
 
+      //미승인 상태의 데이터만
+      const sendList = result.filter(item => 
+        checkedList.includes(item.id) && item.confirmed==="미승인"
+      )
+
+      const confirmApplys = sendList.map(item => ({
+        userId: item.uid, displayName: item.displayName, realName: item.realName
+      }))
+
+      await sendExpoSupabaseNotifications(
+        teamId, confirmApplys,
+        {
+          title: `[프로그램 거절됨] ${post.title}`,
+          message: `${post.title} 프로그램 신청이 거절되었습니다.
+
+[거절 사유]
+${rejectReason}
+
+신청 내용은 (마이페이지 > 신청 기록)에서 확인하실 수 있습니다.`,
+          buttons: [{
+            text:"프로그램 보러가기",
+            url:`/(group)/post/${postId}`
+          }]
+        },
+        "program",
+        {
+          expoMessage: `${post.title} 프로그램 신청이 거절되었습니다.`,
+          // reloadPageWhenDialogClosed: true,
+          onlySupabase: !isSendAlarm
+        }
+      )
+
+      setIsConditionDialogOpen(true)
+      setIsFinished(false)
+      const confirmApplyIds = sendList.map(item => item.id)
+      setProgress(`신청 거절 처리중입니다. (0/${confirmApplyIds.length})`)
+      for(let i = 0; i < confirmApplyIds.length; i++) {
+        await updateApplyCondition(confirmApplyIds[i], 2)
+        setProgress(`신청 거절 처리중입니다. (${i+1}/${confirmApplyIds.length})`)
+      }
+      setProgress(`신청 거절 완료.`)
+      setIsFinished(true)
+      setRejectReason("")
+      
+    } catch(e){
+      setRejectReason("")
+      console.log(e)
+    } 
+  }
+
+  const onParticipatedClick = async (isParticipate) => {
+    const sendList = result.filter(item => 
+      checkedList.includes(item.id) && item.confirmed==="승인"
+    )
+    let nameList = ""
+    sendList.map(item => {nameList=`${nameList==="" ? "" : `${nameList}, `}${item.realName}(${item.displayName})`})
+    if(confirm(`총 ${sendList.length}명의 유저에 ${isParticipate ? "참여" : "불참"}처리 합니다.
+*참여 승인된 유저만 참여/불참 처리할 수 있습니다.
+*참여/불참 처리는 언제든지 변경하실 수 있습니다.
+*어플 유저들에게 공개되지 않습니다.
+
+[선택된 유저 목록]
+${nameList}`)){
+    const confirmApplyIds = sendList.map(item => item.id)
+    setIsConditionDialogOpen(true)
+    setIsFinished(false)
+    setProgress(`${isParticipate ? "참여" : "불참"} 처리중입니다. (0/${confirmApplyIds.length})`)
+    for(let i = 0; i < confirmApplyIds.length; i++) {
+      await updateApplyParticipate(confirmApplyIds[i], isParticipate)
+      setProgress(`${isParticipate ? "참여" : "불참"} 처리중입니다. (${i+1}/${confirmApplyIds.length})`)
+    }
+    setProgress(`신청 승인 완료.`)
+    setIsFinished(true)
+    fetchData()
+    }
+  }
+
+  const onConditionDialogClose = () => {
+    if(!isFinished) return;
+    setIsConditionDialogOpen(false)
   }
 
 
@@ -159,6 +259,17 @@ const Result = () => {
         >
           <PlaylistAddCheckIcon />
           신청 승인 처리
+        </Button>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={onRejectClick}
+          sx={{mt: 1, mr: 1}}
+          color="error"
+          disabled={post.program_post_data.autoConfirm}
+        >
+          <PlaylistRemove />
+          신청 거절 처리
         </Button>
 
         <Button
@@ -187,7 +298,7 @@ const Result = () => {
           size="small"
           sx={{mt: 1, mr: 1}}
           color="secondary"
-          // onClick={() =>setIsAlertDialogOpen(true)}
+          onClick={() =>setIsCustomNotificationDialogOpen(true)}
         >
           <EditNotificationsOutlinedIcon />
           알림 보내기
@@ -203,6 +314,62 @@ const Result = () => {
           {...{checkedList, setCheckedList}}
         />
       </div>
+
+      <Dialog
+        open={isConditionDialogOpen}
+        onClose={onConditionDialogClose}
+      >
+        <p className=" bg-white pt-3 px-5">{progress}</p>
+        <Button
+          disabled={!isFinished}
+          onClick={onConditionDialogClose}
+        >
+          확인
+        </Button>
+      </Dialog>
+      <Dialog
+        open={isRejectDialogOpen}
+        onClose={()=>{setIsRejectDialogOpen(false);setRejectReason("")}}
+      >
+        <div className="
+          bg-white py-5 flex flex-wrap items-center justify-center
+          px-4
+        ">
+          <TextField
+            label="거절 사유를 작성해주세요."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            size="small"
+            style={{width: 600}}
+            multiline
+          />
+          <Button
+            onClick={onRejectButtonClick}
+            size="small"
+            variant="contained"
+            style={{marginTop: 10}}
+            disabled={rejectReason===""}
+            fullWidth
+          >
+            신청 거절
+          </Button>
+        </div>
+      </Dialog>
+
+      <CustomNotificationDialog
+        open={isCustomNotificationDialogOpen}
+        onClose={()=>setIsCustomNotificationDialogOpen(false)}
+        uidList={
+          result.filter(item => 
+              checkedList.includes(item.id)
+            ).map(item => ({
+              userId: item.uid, displayName: item.displayName, realName: item.realName
+            })
+          )
+        }
+        teamId={teamId}
+        notificationType="program"
+      />
     </> 
   )
 }
