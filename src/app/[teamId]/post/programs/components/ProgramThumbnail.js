@@ -45,8 +45,8 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
       {type!=="announcements" &&
         <CardMedia
           component="img"
-          height="140px"
-          style={{height:"140px"}}
+          style={{aspectRatio:"10/7"}}
+          sx={{aspectRatio:"10/7", width:"100%"}}
           image={data.images[0]}
           alt={data.title}
           onClick={()=>router.push(`/${teamId}/post/${type}/${data.id}`)}
@@ -90,7 +90,7 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
 
           }
         </div>
-        <h4 className="font-semibold line-clamp-2">
+        <h4 className="font-semibold line-clamp-1">
           {data.title}
         </h4>
         <p className="text-xs">

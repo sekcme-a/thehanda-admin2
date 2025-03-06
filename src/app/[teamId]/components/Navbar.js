@@ -16,9 +16,9 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
-
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-
+import BallotOutlinedIcon from '@mui/icons-material/BallotOutlined';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 const NavBar = () => {
   const router = useRouter()
@@ -89,6 +89,27 @@ const NavBar = () => {
               <Diversity3Icon />
             </ListItemIcon>
             <ListItemText primary="구성원 관리" className="font-bold" />
+          </ListItemButton>
+        </List>
+      </Collapse>
+
+
+
+      <ListItemButton onClick={()=>handleItemClick(0)}>
+        <ListItemIcon>
+          <PersonOutlineIcon />
+        </ListItemIcon>
+        <ListItemText primary="사용자 관리" />
+        {openedItem===0? <ExpandLess /> : <ExpandMore />}
+      </ListItemButton>
+
+      <Collapse in={openedItem===0} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("users")}>
+            <ListItemIcon>
+              <BallotOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText primary="사용자 목록" />
           </ListItemButton>
         </List>
       </Collapse>

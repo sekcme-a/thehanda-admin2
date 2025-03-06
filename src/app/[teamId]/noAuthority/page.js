@@ -8,15 +8,42 @@ import { sendAuthRequest } from "./service/sendAuthRequest"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/provider/AuthProvider"
 import { showAlert } from "@/utils/showAlert"
+import { useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 
 
 const NoAuthority = () => {
+  const router = useRouter()
   const {session} = useAuth()
   const {teamId} = useParams()
   const {myTeam} = useData()
   const [isSending, setIsSending] = useState(false)
 
+
+  useEffect(()=> {
+    const checkAuthority = async () => {
+      try{
+        if(!session){
+          alert("로그인 후 이용해주세요.")
+          router.push("/")
+          return;
+        }
+        const {data, error} = await supabase
+          .from("members")
+          .select()
+          .eq("user_id", session.user.id)
+          .eq("team_id", teamId)
+          .single()
+        console.log(data,error)
+        if(error) throw error
+        if(data) router.push(`/${teamId}/dashboard`)
+      } catch(e){
+      }finally{
+      }
+    }
+    checkAuthority()
+  },[])
 
   const onButtonClick = async () => {
     setIsSending(true)

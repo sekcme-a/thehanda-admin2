@@ -4,9 +4,10 @@ import { useAuth } from "@/provider/AuthProvider"
 import { useEffect } from "react"
 import { fetchTeams } from "../service/auth"
 import { useState } from "react"
-import { CircularProgress } from "@mui/material"
+import { Button, CircularProgress } from "@mui/material"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 
 
@@ -77,6 +78,16 @@ const Hallway = () => {
       </ul>
 
       <p>더한다 TEAM을 이용해 컨텐츠를 관리하세요.</p>
+
+      <Button
+        variant="contained"
+        fullWidth
+        sx={{mt: 3}}
+        onClick={()=>{
+          supabase.auth.signOut()
+          router.replace("/")
+        }}
+      >로그아웃</Button>
     </>
   )
 }

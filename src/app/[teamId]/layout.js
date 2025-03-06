@@ -20,7 +20,7 @@ const Layout = ({children}) => {
       try{
         if(!session){
           alert("로그인 후 이용해주세요.")
-          router.push("/")
+          router.replace("/")
           return;
         }
         const {data, error} = await supabase
@@ -28,18 +28,18 @@ const Layout = ({children}) => {
           .select()
           .eq("user_id", session.user.id)
           .eq("team_id", teamId)
-          .single()
+          .maybeSingle()
 
         if(error) throw error
-        if(!data) router.push(`/${teamId}/noAuthority`)
+        if(!data) router.replace(`/${teamId}/noAuthority`)
       } catch(e){
-        router.push(`/${teamId}/noAuthority`)
+        router.replace(`/${teamId}/noAuthority`)
       }finally{
         setLoading(false)
       }
     }
     checkAuthority()
-  },[])
+  },[session, teamId])
 
 
   if(loading) return <FullScreenLoader />

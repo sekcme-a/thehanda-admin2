@@ -75,7 +75,7 @@ const Storys = () => {
 
   return(
     <>
-      <Header title="프로그램 관리" />
+      <Header title="스토리 관리" />
 
       <div className="p-5">
         <Title
