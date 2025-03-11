@@ -1,8 +1,14 @@
+'use client'
+
 import { Card, CardContent, CardMedia } from "@mui/material"
 import { useParams, useRouter } from "next/navigation"
 import { toYYYYMMDD_HHMM } from "@/utils/supabase/FormatTimeStamptz"
 import ThumbnailMenu from "./ThumbnailMenu"
 import { publishPost } from "../[postId]/service/handlePost"
+import { useEffect } from "react"
+import { useState } from "react"
+import { supabase } from "@/lib/supabase"
+import moment from "moment/moment"
 
 
 
@@ -10,6 +16,64 @@ import { publishPost } from "../[postId]/service/handlePost"
 const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
   const {teamId} = useParams()
   const router = useRouter()
+
+  const [loading, setLoading] = useState(true)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [unapprovedCount, setUnapprovedCount] =useState(0)
+  const [daily, setDaily] = useState(0)
+  const [weekly, setWeekly] = useState(0)
+
+
+  useEffect(()=> {
+    fetchData()
+  },[])
+
+  const fetchData = async () => {
+    const query = supabase
+      .from("program_apply")
+      .select("*", {count:"exact", head: true})
+      .eq("post_id", data.id)
+
+    const {count: unread} = await supabase
+    .from("program_apply")
+    .select("*", {count:"exact", head: true})
+    .eq("post_id", data.id)
+      .eq("is_viewed_by_admin", false)
+    setUnreadCount(unread)
+
+    const {count: unapproved} = await supabase
+      .from("program_apply")
+      .select("*", {count:"exact", head: true})
+      .eq("post_id", data.id)
+      .eq("condition", 0)
+    setUnapprovedCount(unapproved)
+
+    // 오늘 날짜를 구하는 코드
+    const todayStart = moment().startOf('day').toISOString();  // 오늘 00:00:00
+    const todayEnd = moment().endOf('day').toISOString();      // 오늘 23:59:59
+
+    const {count: day} = await supabase
+      .from("program_apply")
+      .select("*", {count:"exact", head: true})
+      .eq("post_id", data.id) 
+      .gte('saved_at', todayStart)  // saved_at이 오늘 00:00 이후
+      .lte('saved_at', todayEnd);   // saved_at이 오늘 23:59 이전
+    setDaily(day)
+
+    // 이번 주의 시작과 끝 날짜를 구하는 코드
+    const startOfWeek = moment().startOf('week').toISOString();  // 이번 주의 첫 번째 날짜 (일요일 또는 월요일, 로케일 설정에 따라)
+    const endOfWeek = moment().endOf('week').toISOString();      // 이번 주의 마지막 날짜 (토요일 또는 일요일, 로케일 설정에 따라)
+
+    const {count: week} = await supabase
+      .from("program_apply")
+      .select("*", {count:"exact", head: true})
+      .eq("post_id", data.id) 
+      .gte('saved_at', startOfWeek)  // saved_at이 오늘 00:00 이후
+      .lte('saved_at', endOfWeek);   // saved_at이 오늘 23:59 이전
+    setWeekly(week)
+
+    setLoading(false)
+  }
 
   //예약게재시간 지났나 확인
   const isStarted = (startAt) => {
@@ -39,7 +103,7 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
 
 
   return(
-    <Card sx={{p:"10px 5px", cursor:"pointer", position:"relative"}} 
+    <Card sx={{p:"10px 5px 0px 5px", cursor:"pointer", position:"relative"}} 
     >
       <ThumbnailMenu postId={data.id} reloadPage={reloadPage} type={type}/>
       {type!=="announcements" &&
@@ -96,6 +160,30 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
         <p className="text-xs">
           마지막 변경일: {toYYYYMMDD_HHMM(data.program_saved_at)}
         </p>
+        <div>
+          {loading ?
+            <p className="text-xs">신청 현황 불러오는 중..</p>
+            :
+            <>
+              <div className="flex items-center">
+                {unreadCount===0 && unapprovedCount===0
+                  && <p className="text-xs text-green-800">모든 항목이 확인되었습니다.</p>
+                }
+                {unreadCount!==0 &&
+                  <p className="text-xs mr-4 text-red-700">읽지 않음: {unreadCount}</p>
+                }
+                {unapprovedCount!==0 &&
+                  <p className="text-xs text-blue-700">미승인: {unapprovedCount}</p>
+                }
+              </div>
+              <div className="flex items-center">
+                <p className="text-xs mr-4">오늘 신청자: {daily}명</p>
+                <p className="text-xs">이번주 신청자: {weekly}명</p>  
+              </div>
+            </>
+          }
+
+        </div>
       </CardContent>
     </Card>
   )

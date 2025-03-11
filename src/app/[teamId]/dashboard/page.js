@@ -1,6 +1,5 @@
 'use client'
 
-import { usePoints } from "@/utils/usePoints"
 import Header from "../components/Header"
 import { useParams } from "next/navigation"
 import { Grid2 } from "@mui/material"
@@ -12,6 +11,8 @@ import { useState } from "react"
 import { Card } from "@mui/material"
 import Coupon from "./components/Coupon"
 import PostSituations from "./components/PostSituations"
+import PointHistory from "./components/PointHistory"
+import NewApplies from "./components/NewApplies"
 
 
 
@@ -19,7 +20,6 @@ import PostSituations from "./components/PostSituations"
 
 const Dashboard = () => {
   const {teamId} = useParams()
-  const {points} = usePoints(teamId)
 
   const {userCount, fetchUserCount} = useData()
   const [memberCount, setMemberCount] = useState(0)
@@ -74,6 +74,13 @@ const Dashboard = () => {
           </Grid2>
           <Grid2 item size={{xs:12, md: 6, sm: 12}}>
             <PostSituations />
+          </Grid2>
+
+          <Grid2 item size={12}>
+            <NewApplies />
+          </Grid2>
+          <Grid2 item size={12}>
+            <PointHistory />
           </Grid2>
         </Grid2>
       </div>

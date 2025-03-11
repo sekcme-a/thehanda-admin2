@@ -1,19 +1,28 @@
-import { supabase } from "@/lib/supabase";
-import { useState } from "react";
-import { useEffect } from "react";
+'use client'
+
+import { supabase } from "@/lib/supabase"
+import { useParams } from "next/navigation"
+import { useEffect } from "react"
+import { useState } from "react"
+import { useContext } from "react"
+import { createContext } from "react"
+
+const PointContext = createContext()
 
 
+export default function PointProvider({children}) {
+
+  const {teamId} = useParams()
 
 
-
-export const usePoints = (teamId) => {
   const [points, setPoints] = useState({
     season: 0,
     general: 0
   })
 
   useEffect(()=> {
-    fetchPoints()
+    if(teamId)
+      fetchPoints()
   },[teamId])
 
   const fetchPoints = async () => {
@@ -23,34 +32,40 @@ export const usePoints = (teamId) => {
       .from("points")
       .select("season_points, general_points")
       .eq("team_id", teamId)
-      .single()
+      .maybeSingle()
 
     if(error){
       console.error("포인트 조회 실패:", error.message)
       return;
     }
+    if(!data){
+      setPoints({season: 0, general: 0})
+      return {season: 0, general: 0}
+    }
 
     setPoints({season: data.season_points, general: data.general_points})
+    return {season: data.season_points, general: data.general_points}
   }
 
 
 
   const deductPoints = async (amount, description, postId) => {
     if(!teamId) return;
+    if(amount === 0 )return;
 
-    let {season, general} = points
+    let {season, general} = await fetchPoints()
 
     if(season >= amount) {
       season -= amount
     } else {
       amount -= season
       season = 0;
-      general = Math.max(0, genral - amount)
+      general = Math.max(0, general - amount)
     }
 
     const {error} = await supabase
       .from("points")
-      .upsert({
+      .update({
         season_points: season, 
         general_points: general, 
         team_id: teamId
@@ -66,10 +81,10 @@ export const usePoints = (teamId) => {
     const { error: logError } = await supabase.from("point_logs").insert([
       {
         team_id: teamId,
-        amount: usedSeason + usedGeneral,
+        amount,
         remaining_season: season,
         remaining_general: general,
-        postId,
+        post_id: postId,
         type:"사용",
         description,
       },
@@ -86,8 +101,23 @@ export const usePoints = (teamId) => {
 
   // 포인트 충분한지 확인
   const hasEnoughPoints = (amount) => {
-    return points.season + points.general >= amount;
+    return {
+      result: points.season + points.general >= amount,
+      remainPoints: points.season + points.general,
+      insufficientPoints: amount - points.season - points.general
+    }
   };
 
-  return{points, fetchPoints, deductPoints, hasEnoughPoints,}
+  return(
+    <PointContext.Provider
+      value={{
+        points, fetchPoints, deductPoints, hasEnoughPoints,
+      }}
+    >
+      {children}
+    </PointContext.Provider>
+  )
+
 }
+
+export const usePoint = () => useContext(PointContext)

@@ -92,7 +92,7 @@ const UserList = () => {
           )
         }
         teamId={teamId}
-        notificationType="program"
+        notificationType="group"
       />
     </Card>
   )

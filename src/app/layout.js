@@ -7,6 +7,7 @@ import AuthProvider from "@/provider/AuthProvider";
 import DataProvider from "@/provider/DataProvider";
 import theme from "@/theme";
 import NotificationProvider from "@/provider/NotificationProvider";
+import PointProvider from "@/provider/PointProvider";
 
 
 const geistSans = Geist({
@@ -36,9 +37,11 @@ export default function RootLayout({ children }) {
            
               <AuthProvider>
                 <DataProvider>
-                  <NotificationProvider>
-                    {children}
-                  </NotificationProvider>
+                  <PointProvider>
+                    <NotificationProvider>
+                      {children}
+                    </NotificationProvider>
+                  </PointProvider>
                 </DataProvider>
               </AuthProvider>
      

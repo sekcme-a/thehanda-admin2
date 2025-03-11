@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase"
-import { usePoints } from "@/utils/usePoints"
+import { usePoint } from "@/provider/PointProvider"
 import { Button } from "@mui/material"
 import { TextField } from "@mui/material"
 import { useParams } from "next/navigation"
@@ -9,7 +9,7 @@ import { useState } from "react"
 
 const ChargeDialog = () => {
   const {teamId} = useParams()
-  const {points} = usePoints(teamId)
+  const {points} = usePoint()
 
   const [chargePointAmount, setChargePointAmount] = useState("0")
   const [chargetPointAmountHelperText, setChargePointAmountHelperText] = useState(points.general)

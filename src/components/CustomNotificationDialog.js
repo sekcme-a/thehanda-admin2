@@ -1,11 +1,30 @@
 'use client'
 
+import { supabase } from "@/lib/supabase"
 import { useNotification } from "@/provider/NotificationProvider"
 import { Button, Dialog, TextField } from "@mui/material"
 import { useState } from "react"
 
 
 
+/**
+ * uidList: 알림을 보낼 uid 배열
+ * teamId
+ * notificationType: 알림 유형. 유저가 알림 설정에 해당 타입 알림 ON/OFF 여부 판단 위해
+ * options: {
+ *  withoutUsingPoint: false (포인트 사용 여부)
+ *  onlyExpo: false, onlySupabase: false,
+ *  hideDialog: false,
+ *  customData: null (알림을 클릭했을 때 이동할 url을 변경하려면)
+ *  예){url: `/(screen/notification/${notificationId}`}
+ *  expoMessage: null (휴대폰 알림의 메세지는 다르게 출력하려면)
+ *  reloadPageWhenDialogClosed: false
+ *  postId: 프로그램 ID
+ * 
+ *  description: 포인트 사용 로그
+ * }
+ * 
+ */
 
 const CustomNotificationDialog = ({
   open, onClose,
@@ -36,6 +55,17 @@ const CustomNotificationDialog = ({
       alert("버튼 링크는 http나 https 가 포함된 전체 주소여야 합니다.")
     else {
       try{
+        if(programCode!==""){
+          const {data} = await supabase
+            .from("posts")
+            .select("id")
+            .eq("id", programCode)
+            .maybeSingle()
+          if(!data){
+            alert("프로그램이 존재하지 않습니다. 프로그램 코드를 다시 확인해주세요.")
+            return;
+          }
+        }
         await sendExpoSupabaseNotifications(
           teamId, uidList,
           {
@@ -48,9 +78,10 @@ const CustomNotificationDialog = ({
             ]
             : buttons,
           },
-          notificationType,
+          programCode!=="" ? "program" : "group",
           {
             ...options,
+            description: `[알림 전송] ${title}`,
             expoMessage: subtitle
           }
         )
@@ -184,18 +215,25 @@ const CustomNotificationDialog = ({
           variant="contained"
           fullWidth
           size="small"
-          sx={{mt: 2}}
+          sx={{mt: 2, mb: 2}}
           onClick={()=>setButtons(prev => [...prev, {text:"", url:""}])}
           disabled={buttons.length>2}
           color="secondary"
         >
           버튼 추가 +
         </Button>
+
+        <p className="text-sm">
+          최대 소모 포인트: {uidList?.length * 8}p
+        </p>
+        <p className="text-xs">
+          * "시즌 포인트 + 일반 포인트" 의 합이 "최대 소모 포인트"보다 적을 경우 알림을 보낼 수 없습니다.
+        </p>
         <Button
           variant="contained"
           fullWidth
           size="small"
-          sx={{mt: 2}}
+          sx={{mt: .1}}
           onClick={onSendAlarmClick}
         >
           알림 보내기

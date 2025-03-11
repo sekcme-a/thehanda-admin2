@@ -1,7 +1,6 @@
 //data = {title, receiver_id, message, buttons}
 
 import { supabase } from "@/lib/supabase"
-import { checkisValidPoint } from "./pointService"
 import { NoteSharp } from "@mui/icons-material"
 
 //buttons = [{text, url:""}]  url에 http 가 포함되면 외부 링크로, 아니면 앱 링크로

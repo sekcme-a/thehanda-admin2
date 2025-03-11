@@ -14,8 +14,12 @@ const CouponDialog = () => {
 
   const onCouponUseClick = async ()=> {
     const result = await redeemCoupon(code)
-    if(!result) {
-      alert("존재하지 않거나 사용된 쿠폰입니다.")
+    if(!result.result) {
+      alert(result.error)
+    }
+    else {
+      alert(`쿠폰을 사용하여 ${result.chargedPoints}p 가 충전되었습니다.\n현재 잔여 포인트: ${result.remainPoints}p`)
+      setCode("")
     }
   }
 

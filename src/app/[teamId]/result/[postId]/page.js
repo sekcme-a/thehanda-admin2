@@ -20,6 +20,7 @@ import { isNotificationEnabledForType, sendSupabaseNotificationAndGetNotificatio
 import { useNotification } from "@/provider/NotificationProvider"
 import { PlaylistRemove } from "@mui/icons-material"
 import CustomNotificationDialog from "@/components/CustomNotificationDialog"
+import { supabase } from "@/lib/supabase"
 
 const Result = () => {
   const {sendExpoSupabaseNotifications} = useNotification()
@@ -48,7 +49,16 @@ const Result = () => {
 
   useEffect(()=> {
     fetchData()
+    handleUnread()
   },[])
+
+  const handleUnread = async () => {
+    const {error} = await supabase
+      .from("program_apply")
+      .update({is_viewed_by_admin: true})
+      .eq("post_id", postId)
+      .eq("is_viewed_by_admin", false)
+  }
 
   const fetchData = async () => {
     try{

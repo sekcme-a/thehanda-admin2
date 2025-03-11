@@ -16,7 +16,8 @@ const PostSituations = () => {
   const [program, setProgram] = useState({
     all: "-",
     published:"-",
-    main:"-"
+    main:"-",
+    applying:"-"
   })
   const [story, setStory] = useState({
     published:"-"
@@ -33,17 +34,32 @@ const PostSituations = () => {
       .from("posts")
       .select("*", {count: 'exact', head: true})
       .eq("program_team_id", teamId)
+      .eq("type", "program")
+      
     const {count: published} = await supabase
       .from("posts")
       .select("*", {count: 'exact', head: true})
+      .eq("type", "program")
       .eq("program_team_id", teamId)
       .eq("program_condition", "published")
+
       const {count: main} = await supabase
       .from("posts")
       .select("*", {count: 'exact', head: true})
+      .eq("type", "program")
       .eq("program_team_id", teamId)
       .eq("program_is_main", true)
-    setProgram({all, published, main})
+
+      const { count: applying, error } = await supabase
+      .from("posts")
+      .select("*", { count: "exact", head: true })
+      .eq("type", "program")
+      .eq("program_team_id", teamId)
+      .or("program_apply_start_at.is.null,program_apply_start_at.lte.now")
+      .or("deadline.is.null,deadline.gt.now");
+
+    setProgram({all, published, main, applying})
+
 
     const {count: storyPublished} = await supabase
     .from("posts")
@@ -64,26 +80,31 @@ const PostSituations = () => {
 
   return(
     <Card sx={{ position: 'relative', overflow: 'visible', mt: { xs: 0, sm: 7.5, md: 0 }, height:"100%" }}>
-      <CardContent sx={{ p: theme => `${theme.spacing(4.25, 4.5, 2.25, 4.5)} !important` }}>
+      <CardContent sx={{ p: theme => `${theme.spacing(2.25, 2.5, 2.25, 2.5)} !important` }}>
         <h3 className="font-bold text-xl">
           게시물
         </h3>
-        <h4 className="mt-2 mb-4">
+        <h4 className="mt-1 mb-4 font-semibold">
         {myTeam?.name}의 게시물 현황입니다.
         </h4>
 
         <Grid2 container spacing={3}>
+
+        <Grid2 size={{xs:12, sm:12, md:4}}>
+            <p className="text-sm">메인 프로그램 수</p>
+            <h4 className="text-lg font-bold">총 {program.main}개</h4>
+          </Grid2>
           <Grid2 size={{xs:12, sm:12, md:4}}>
-            <p className="text-sm">전체 프로그램 수</p>
-            <h4 className="text-lg font-bold">총 {program.all}개</h4>
+            <p className="text-sm">신청 모집중인 프로그램 수</p>
+            <h4 className="text-lg font-bold">총 {program.applying}개</h4>
           </Grid2>
           <Grid2 size={{xs:12, sm:12, md:4}}>
             <p className="text-sm">게재중 프로그램 수</p>
             <h4 className="text-lg font-bold">총 {program.published}개</h4>
           </Grid2>
           <Grid2 size={{xs:12, sm:12, md:4}}>
-            <p className="text-sm">메인 프로그램 수</p>
-            <h4 className="text-lg font-bold">총 {program.main}개</h4>
+            <p className="text-sm">전체 프로그램 수</p>
+            <h4 className="text-lg font-bold">총 {program.all}개</h4>
           </Grid2>
           <Grid2 size={{xs:12, sm:12, md:4}}>
             <p className="text-sm">게재중 스토리 수</p>

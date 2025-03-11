@@ -1,21 +1,23 @@
 'use client'
 
 import { fetchPushToken, isNotificationEnabledForType, sendSupabaseNotificationAndGetNotificationId } from "@/utils/supabase/notificationService"
-import { checkisValidPoint } from "@/utils/supabase/pointService"
 import { Dialog } from "@mui/material"
 import axios from "axios"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 // import Expo from "expo-server-sdk"
 import { useState } from "react"
 import { useContext } from "react"
 import { createContext } from "react"
+import { usePoint } from "./PointProvider"
 
 
 const NotificationContext = createContext()
 
 export default function NotificationProvider ({children}) {
   const router = useRouter()
+  const {teamId} = useParams()
+  const {deductPoints, hasEnoughPoints} = usePoint()
   const [isOpenDialog, setIsOpenDialog] = useState(false)
 
   const [successes, setSuccesses] = useState([])
@@ -50,28 +52,39 @@ export default function NotificationProvider ({children}) {
       //예) {url: `/(screen)/notification/${notificationId}`}
       expoMessage: null, //휴대폰 알림의 메세지는 다르게 출력하려면
       reloadPageWhenDialogClosed: false,
+
+      description:"-",
+      postId: null,
     }
   ) => {
     try{
       setFinished(false)
+      
+      const POINT_PRICE = userList.length * 8
+
+      //포인트 충분한지 확인
+      if(teamId && !options.withoutUsingPoint) {
+        const result = hasEnoughPoints(POINT_PRICE)
+        if(!result.result) 
+          throw `포인트가 부족합니다.\n남은 포인트(시즌+일반): ${result.remainPoints}p\n부족한 포인트: ${result.insufficientPoints}p`
+      }
+      
+
       if(!options.hideDialog) setIsOpenDialog(true)
 
       if(!options.hideDialog && options.reloadPageWhenDialogClosed) 
         setReloadOnDialogClosed(true)
 
-      if(teamId && !options.withoutUsingPoint) {
-        const isValidPoint = await checkisValidPoint(teamId, userList.length)
-        if(!isValidPoint) throw "포인트가 부족합니다."
-      }
-      
       setAllCount(userList.length)
 
-      const sendedUserId = []
+      let triedUserId = []
+      let successCount = 0
       for(const user of userList) {
-        if(sendedUserId.includes(user.userId)){
+        if(triedUserId.includes(user.userId)){
           setDuplicates(prev => prev+1)
         }else {
           try{
+            triedUserId = [...triedUserId, user.userId]
             setProgress(`${user.displayName}(${user.realName})님에게 알림을 전송합니다.`)
 
             const notificationId = await sendSupabaseNotificationAndGetNotificationId(
@@ -97,7 +110,7 @@ export default function NotificationProvider ({children}) {
             }
 
             setSuccesses(prev => ([...prev, {name: `${user.displayName}(${user.realName})`}]))
-
+            successCount += 1
           }catch(error) {
             setFails(prev => ([
               ...prev,
@@ -109,6 +122,14 @@ export default function NotificationProvider ({children}) {
           }
         }
       }
+
+      setProgress("포인트 차감 중.")
+      const result = await deductPoints(
+        successCount * 8, options.description, options.postId
+      )
+      alert(`총 ${successCount}명에게 알림을 보냈으며, ${successCount *8}p 가 차감되었습니다.`)
+
+
     } catch (error) {
       alert(error)
     }finally{

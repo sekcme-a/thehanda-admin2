@@ -1,11 +1,10 @@
 import { supabase } from "@/lib/supabase"
-import { usePoints } from "./usePoints"
-
+import { usePoint } from "@/provider/PointProvider"
 
 
 
 export const useCoupons = (teamId) => {
-  const {fetchPoints} = usePoints(teamId)
+  const {fetchPoints} = usePoint()
 
   const redeemCoupon = async (code) => {
     const {data: coupon, error} = await supabase
@@ -16,25 +15,35 @@ export const useCoupons = (teamId) => {
 
     if(error || !coupon){
       console.error("쿠폰이 존재하지 않거나 잘못된 코드입니다.")
-      return false;
+      return {
+        result: false,
+        error: "쿠폰이 존재하지 않거나 잘못된 코드입니다."
+      };
     }
 
     if(coupon.used){
       console.error("이미 사용된 쿠폰입니다.")
-      return false;
+      return {
+        result: false,
+        error:"이미 사용된 쿠폰입니다."
+      }
     }
 
+    const currentPoints = await fetchPoints()
     const {error: updateError} = await supabase
       .from("points")
       .update({
-        general_points: supabase.raw("general_points + " + coupon.points ),
+        general_points: currentPoints.general + coupon.points,
         team_id: teamId
       })
       .eq("team_id", teamId)
 
     if(updateError){
       console.error("포인트 충전 실패:", updateError.message)
-      return false;
+      return {
+        result: false,
+        error: updateError.message
+      }
     }
 
     // 쿠폰 사용 처리
@@ -45,7 +54,10 @@ export const useCoupons = (teamId) => {
 
     if (couponError) {
       console.error("쿠폰 상태 업데이트 실패:", couponError.message);
-      return false;
+      return {
+        result: false,
+        error: couponError.message
+      }
     }
 
     // 포인트 충전 내역 기록
@@ -54,8 +66,8 @@ export const useCoupons = (teamId) => {
         team_id: teamId,
         type: "충전",
         amount: coupon.points,
-        remaining_season: points.season,
-        remaining_general: updateError.data.general_points,
+        remaining_season: currentPoints.season,
+        remaining_general: currentPoints.general + coupon.points,
         description: "쿠폰 사용",
       },
     ]);
@@ -67,7 +79,11 @@ export const useCoupons = (teamId) => {
     // 최신 포인트 정보 가져오기
     fetchPoints();
 
-    return true;
+    return {
+      result: true,
+      chargedPoints: coupon.points,
+      remainPoints: currentPoints.general + coupon.points
+    }
   }
 
   return {redeemCoupon}
