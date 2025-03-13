@@ -116,7 +116,7 @@ const Result = () => {
           userId: item.uid, displayName: item.displayName, realName: item.realName
         }))
 
-        await sendExpoSupabaseNotifications(
+        const notificationResult = await sendExpoSupabaseNotifications(
           teamId, confirmApplys,
           {
             title: `[프로그램 참여 확정] ${post.title}`,
@@ -132,9 +132,10 @@ const Result = () => {
           "program",
           {
             expoMessage: `${post.title} 프로그램에 참여가 확정되었습니다.`,
-            onlySupabase: !isSendAlarm
+            onlySupabase: !isSendAlarm,
           }
         )
+        if(!notificationResult) return;
 
         setIsConditionDialogOpen(true)
         setIsFinished(false)
@@ -176,7 +177,7 @@ const Result = () => {
         userId: item.uid, displayName: item.displayName, realName: item.realName
       }))
 
-      await sendExpoSupabaseNotifications(
+      const notificationResult = await sendExpoSupabaseNotifications(
         teamId, confirmApplys,
         {
           title: `[프로그램 거절됨] ${post.title}`,
@@ -199,6 +200,8 @@ ${rejectReason}
         }
       )
 
+      if(!notificationResult) return;
+
       setIsConditionDialogOpen(true)
       setIsFinished(false)
       const confirmApplyIds = sendList.map(item => item.id)
@@ -210,7 +213,7 @@ ${rejectReason}
       setProgress(`신청 거절 완료.`)
       setIsFinished(true)
       setRejectReason("")
-      
+      fetchData()
     } catch(e){
       setRejectReason("")
       console.log(e)

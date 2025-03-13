@@ -29,6 +29,8 @@ export default function NotificationProvider ({children}) {
   const [progress, setProgress] = useState("")
 
   const [reloadOnDialogClosed, setReloadOnDialogClosed] = useState(false)
+
+  const [onlySupabase, setOnlySupabase] = useState(false)
   
   //userList=[{userId: "", displayName, realName}]
 //   {
@@ -61,11 +63,14 @@ export default function NotificationProvider ({children}) {
       
       const POINT_PRICE = userList.length * 8
 
+      setOnlySupabase(options.onlySupabase)
+
       //포인트 충분한지 확인
-      if(teamId && !options.withoutUsingPoint) {
+      if(teamId && !(options.onlySupabase||options.withoutUsingPoint)) {
         const result = hasEnoughPoints(POINT_PRICE)
-        if(!result.result) 
+        if(!result.result) {
           throw `포인트가 부족합니다.\n남은 포인트(시즌+일반): ${result.remainPoints}p\n부족한 포인트: ${result.insufficientPoints}p`
+        }
       }
       
 
@@ -122,17 +127,19 @@ export default function NotificationProvider ({children}) {
         }
       }
 
-      setProgress("포인트 차감 중.")
-      const result = await deductPoints(
-        successCount * 8, options.description
-      )
-      alert(`총 ${successCount}명에게 알림을 보냈으며, ${successCount *8}p 가 차감되었습니다.`)
-
-
+      if(!(options.onlySupabase||options.withoutUsingPoint)){
+        setProgress("포인트 차감 중.")
+        const result = await deductPoints(
+          successCount * 8, options.description
+        )
+        alert(`총 ${successCount}명에게 알림을 보냈으며, ${successCount *8}p 가 차감되었습니다.`)
+      }
+      setProgress("전송 완료.")
+      return true
     } catch (error) {
       alert(error)
+      return false
     }finally{
-      setProgress("전송 완료.")
       setFinished(true)
     }
   }
@@ -185,35 +192,45 @@ export default function NotificationProvider ({children}) {
       }}
     >
       <Dialog open={isOpenDialog} onClose={onDialogClose}>
-        <div className="w-[80vw] md:w-[65vw]   bg-white h-[70vh]
-          pt-3 px-5"
-        >
-          <h3 className="mt-2 font-bold text-lg">알림 전송</h3>
-          <p className="text-xs">*중복된 사용자에게는 알림이 1번만 발송됩니다.</p>
-          <p className="font-bold">{`성공: ${successes.length}, 실패: ${fails.length}, 중복: ${duplicates}, 대기: ${
-            allCount-successes.length-fails.length-duplicates}`}
-          </p>
-          <h4 className="text-sm">{progress}</h4>
 
-          <h5 className="mt-5 font-bold mb-1 text-green-700">성공</h5>
-          {
-            successes.map((item, index) => (
-              <div key={index} className="w-full mb-1 flex items-center">
-                <p className="font-bold mr-1 text-xs">{item.name}</p>
-                <p className="text-xs">{JSON.stringify(item.reason)}</p>
-              </div>
-            ))
-          }
-          <h5 className="mt-5 font-bold mb-1 text-red-700">실패 사유</h5>
-          {
-            fails.map((item, index) => (
-              <div key={index} className="w-full mb-1 flex items-center">
-                <p className="font-bold mr-1 text-xs">{item.name}</p>
-                <p className="text-xs">{JSON.stringify(item.reason)}</p>
-              </div>
-            ))
-          }
-        </div>
+        {onlySupabase ? 
+          <div className=" bg-white py-3 px-5">
+            <h3 className="mt-2 font-bold text-lg">메세지 전송</h3>
+            <p className="text-xs">*중복된 사용자에게는 메세지가 한번만 전송됩니다.</p>
+            <p className="font-bold center mt-2">{`${successes.length} / ${allCount}`}</p>
+          </div>
+          :
+          <div className="w-[80vw] md:w-[65vw]   bg-white h-[70vh]
+            pt-3 px-5"
+          >
+            <h3 className="mt-2 font-bold text-lg">알림 전송</h3>
+            <p className="text-xs">*중복된 사용자에게는 알림이 1번만 발송됩니다.</p>
+            <p className="font-bold">{`성공: ${successes.length}, 실패: ${fails.length}, 중복: ${duplicates}, 대기: ${
+              allCount-successes.length-fails.length-duplicates}`}
+            </p>
+            <h4 className="text-sm">{progress}</h4>
+
+            <h5 className="mt-5 font-bold mb-1 text-green-700">성공</h5>
+            {
+              successes.map((item, index) => (
+                <div key={index} className="w-full mb-1 flex items-center">
+                  <p className="font-bold mr-1 text-xs">{item.name}</p>
+                  <p className="text-xs">{JSON.stringify(item.reason)}</p>
+                </div>
+              ))
+            }
+            <h5 className="mt-5 font-bold mb-1 text-red-700">실패 사유</h5>
+            {
+              fails.map((item, index) => (
+                <div key={index} className="w-full mb-1 flex items-center">
+                  <p className="font-bold mr-1 text-xs">{item.name}</p>
+                  <p className="text-xs">{JSON.stringify(item.reason)}</p>
+                </div>
+              ))
+            }
+
+          </div>
+        }
       </Dialog>
       {children}
     </NotificationContext.Provider>

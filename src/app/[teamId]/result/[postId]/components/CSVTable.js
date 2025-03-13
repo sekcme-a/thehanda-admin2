@@ -15,7 +15,7 @@ import { useEffect } from "react";
 const CSVTable = ({
   title, header, data, checkedList, setCheckedList
 }) => {
-  const {router} = useRouter()
+  const router = useRouter()
   const {teamId, postId} = useParams()
   
   const [filter, setFilter] = useState("all")
@@ -177,7 +177,7 @@ const CSVTable = ({
                           return(
                             <td 
                               key={index} 
-                              onClick={()=>router.push(`/${teamId}/user/${item.id}`)}
+                              onClick={()=>router.push(`/${teamId}/users/${item.uid}`)}
                               style={
                                 item[head.key]==="불참" ||item[head.key]==="미승인" ? 
                                 {color:'red'} :
@@ -186,7 +186,7 @@ const CSVTable = ({
                                 item[head.key]==="거절" ? 
                                 {color: 'gray'}
                                 : {} }
-                              className="py-1 px-2 align-middle"
+                              className="py-1 px-2 align-middle, cursor-pointer"
                             >
                               {item[head.key]?.length>30 ? 
                               `${item[head.key].substr(0,30)}...` : item[head.key]}
