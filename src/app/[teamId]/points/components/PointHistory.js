@@ -1,3 +1,5 @@
+'use client'
+
 import { getYYYYMMDDWithSlash, getYYYYMMWithSlash } from "@/utils/getDate"
 import { CardContent } from "@mui/material"
 import { Card } from "@mui/material"
@@ -10,6 +12,12 @@ import moment from "moment/moment"
 import { CacheManager } from "@/utils/CacheManager"
 import { toYYYYMMDD_HHMM } from "@/utils/supabase/FormatTimeStamptz"
 
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { Button } from "@mui/material"
+
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';import { TextField } from "@mui/material"
+;
+
 
 const PointHistory = () => {
   const {teamId} = useParams()
@@ -17,6 +25,13 @@ const PointHistory = () => {
 
   const [list, setList] = useState([])
   const [checkedList, setCheckedList] = useState([])
+
+
+  // const [sortStartDate, setSortStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+  // const [sortEndDate, setSortEndDate] = useState(new Date())
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const HEADERS = [
     {key:"description", label:"제목"},
@@ -27,24 +42,25 @@ const PointHistory = () => {
     {key:"remaining_general", label:"잔여 일반 포인트"},
   ]
 
-  useEffect(()=> {
-    fetchData()
-  },[])
+  const fetchLogs = async () => {
+    if (!startDate || !endDate) return alert("검색 기간을 선택해 주세요!");
 
-  const fetchData = async () => {
-    const startOfMonth = moment().startOf("month").toISOString();
-    const endOfMonth = moment().endOf("month").toISOString();
+    const from = moment(startDate).startOf("day").toISOString();
+    const to = moment(endDate).endOf("day").toISOString();
+    if(from > to ) return alert("시작/종료 날짜를 정확히 입력해주세요.")
 
-    console.log(moment().startOf("month"), moment().endOf("month"))
-    const {data, error} = await supabase
+    const { data, error } = await supabase
       .from("point_logs")
-      .select()
+      .select("*")
       .eq("team_id", teamId)
-      .gte("created_at", startOfMonth)
-      .lte("created_at", endOfMonth)
-      .order("created_at", {ascending: false})
-    if(error) console.log(error)
-    if(data){
+      .gte("created_at", from)
+      .lte("created_at", to)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("검색 중 오류가 발생했습니다.");
+    } else if(data) {
       const result = await Promise.all(
         data.map(async(item) => {
           const cacheKey = `profile_${item.uid}`
@@ -78,7 +94,8 @@ const PointHistory = () => {
       setList(result)
       console.log(result)
     }
-  }
+  };
+
 
   return(
     <Card 
@@ -88,21 +105,43 @@ const PointHistory = () => {
       }}
     >
       <CardContent
-        sx={{ p: theme => `${theme.spacing(2.25, 2.5, 2.25, 2.5)}  !important` }}
+        sx={{ 
+          p: theme => `${theme.spacing(2.25, 2.5, 2.25, 2.5)}  !important` ,
+          display: "inline-block"
+        }}
       >
-        <div className="flex items-end">
-          <h4 className="font-bold">
-            {`이번달 포인트 사용 현황 (${getYYYYMMWithSlash()})`}
-          </h4>
-          <p 
-            className="text-sm underline ml-3 cursor-pointer"
-            onClick={()=>router.push(`/${teamId}/points`)}
+        <h4 className="font-bold mb-3">
+          {`포인트 사용 현황`}
+        </h4>
+
+        <div className="flex items-center mb-5">
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+          <DatePicker
+            label="시작 날짜"
+            value={startDate}
+            onChange={(newValue) => setStartDate(newValue)}
+          />
+          </LocalizationProvider>
+          <p className="text-xl font-bold ml-3 mr-3">~</p>
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+          <DatePicker
+            label="종료 날짜"
+            value={endDate}
+            onChange={(newValue) => setEndDate(newValue)}
+          />
+          </LocalizationProvider>
+          <Button
+            size="small"
+            variant="contained"
+            sx={{ml:"15px"}}
+            onClick={fetchLogs}
           >
-            자세히 보기
-          </p>
+            검색
+          </Button>
         </div>
+
         <CSVTable
-            title={`${getYYYYMMWithSlash()} 포인트 사용 현황`}
+            title={`${startDate}~${endDate} 포인트 사용 현황`}
             headers={HEADERS}
             data={list}
             {...{checkedList, setCheckedList}}

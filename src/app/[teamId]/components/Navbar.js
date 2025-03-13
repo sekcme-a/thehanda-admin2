@@ -19,6 +19,8 @@ import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import BallotOutlinedIcon from '@mui/icons-material/BallotOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import CurrencyRubleIcon from '@mui/icons-material/CurrencyRuble';
+
 
 const NavBar = () => {
   const router = useRouter()
@@ -61,6 +63,13 @@ const NavBar = () => {
           <DashboardRoundedIcon />
         </ListItemIcon>
         <ListItemText primary="대쉬보드" className="font-bold" />
+      </ListItemButton>
+
+      <ListItemButton onClick={() => onClick('points')}>
+          <ListItemIcon>
+            <CurrencyRubleIcon />
+          </ListItemIcon>
+          <ListItemText primary="한다 포인트" />
       </ListItemButton>
 
 

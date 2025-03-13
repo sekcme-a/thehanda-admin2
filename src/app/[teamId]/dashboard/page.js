@@ -64,7 +64,11 @@ const Dashboard = () => {
           </Grid2>
 
           <Grid2 item size={{xs:12, md: 6, sm: 12}}>
-            <Card sx={{height:"100%"}}>
+            <Card sx={{
+                height:"100%",
+                display:"flex", justifyContent:"center", alignItems:"center"
+              }}
+            >
               <img src="/images/commerce/dashboard_main.png" alt="더한다" />
             </Card>
           </Grid2>
