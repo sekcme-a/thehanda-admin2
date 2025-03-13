@@ -49,7 +49,7 @@ export default function PointProvider({children}) {
 
 
 
-  const deductPoints = async (amount, description, postId) => {
+  const deductPoints = async (amount, description) => {
     if(!teamId) return;
     if(amount === 0 )return;
 
@@ -84,7 +84,6 @@ export default function PointProvider({children}) {
         amount,
         remaining_season: season,
         remaining_general: general,
-        post_id: postId,
         type:"사용",
         description,
       },

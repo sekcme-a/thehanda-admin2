@@ -54,7 +54,6 @@ export default function NotificationProvider ({children}) {
       reloadPageWhenDialogClosed: false,
 
       description:"-",
-      postId: null,
     }
   ) => {
     try{
@@ -125,7 +124,7 @@ export default function NotificationProvider ({children}) {
 
       setProgress("포인트 차감 중.")
       const result = await deductPoints(
-        successCount * 8, options.description, options.postId
+        successCount * 8, options.description
       )
       alert(`총 ${successCount}명에게 알림을 보냈으며, ${successCount *8}p 가 차감되었습니다.`)
 

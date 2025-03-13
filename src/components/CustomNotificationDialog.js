@@ -19,7 +19,6 @@ import { useState } from "react"
  *  예){url: `/(screen/notification/${notificationId}`}
  *  expoMessage: null (휴대폰 알림의 메세지는 다르게 출력하려면)
  *  reloadPageWhenDialogClosed: false
- *  postId: 프로그램 ID
  * 
  *  description: 포인트 사용 로그
  * }
