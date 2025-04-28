@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react"
 
-import { firestore as db } from "firebase/firebase"
 
 import { Button, Checkbox, Select, MenuItem, TextField, CardContent, Switch } from "@mui/material"
 import styles from "./CSVTable.module.css"
