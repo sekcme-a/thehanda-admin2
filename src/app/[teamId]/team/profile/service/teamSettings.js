@@ -20,7 +20,7 @@ export async function updateTeamProfile(file, teamName, teamId, userId) {
     let uploadedUrls=""
     if(file){
       // 파일 업로드 경로 지정
-      const path = `${userId}/team_profile_image`; // 팀 ID를 경로에 포함
+      const path = `${userId}/team_profile_image/${teamId}`; // 팀 ID를 경로에 포함
       await deleteFolder(path)
       // 파일을 Supabase 스토리지에 업로드하고 공개 URL 가져오기
       uploadedUrls = await uploadFilesToSupabase([file], path);
