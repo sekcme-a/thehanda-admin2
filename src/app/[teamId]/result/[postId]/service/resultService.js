@@ -4,7 +4,7 @@ import { toYYYYMMDD_HHMM } from "@/utils/supabase/FormatTimeStamptz"
 
 
 
-export const fetchResult = async (postId) => {
+export const fetchResult = async (postId, isAutoConfirm) => {
   try{
     const {data: applies} = await supabase
       .from("program_apply")
@@ -24,7 +24,7 @@ export const fetchResult = async (postId) => {
           id: apply.id,
           uid: apply.uid,
           ...apply.data,
-          confirmed:apply.condition === 1 ? "승인" : 
+          confirmed: isAutoConfirm ? "자동 승인" : apply.condition === 1 ? "승인" : 
             apply.condition === 2 ? "거절" : "미승인",
           participated: apply.participated ? "참여" :
             apply.participated===null ? "-" : "불참",

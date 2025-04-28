@@ -29,10 +29,18 @@ const IdAndPw = () => {
 
   const login = async () => {
     try{
-      await loginWithEmailPw(email, pw)
-      router.push("/hallway")
+      if(email.length===0 || pw.length ===0)
+        alert("이메일와 비밀번호를 모두 입력해주세요.")
+      else if(pw.length < 8)
+        alert("비밀번호는 8자리 이상입니다.")
+      else if(email.lenght<2)
+        alert("올바른 이메일을 입력해주세요.")
+      else{
+        await loginWithEmailPw(email, pw)
+        router.push("/hallway")
+      }
     } catch(error){
-      alert(error)
+      alert("이메일이나 비밀번호가 틀렸습니다.")
     }
   }
 

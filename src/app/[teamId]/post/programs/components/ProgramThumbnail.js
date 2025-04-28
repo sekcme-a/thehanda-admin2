@@ -25,7 +25,9 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
 
 
   useEffect(()=> {
-    fetchData()
+    if(type==="programs")
+      fetchData()
+    else setLoading(false)
   },[])
 
   const fetchData = async () => {
@@ -111,7 +113,7 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
           component="img"
           style={{aspectRatio:"10/7"}}
           sx={{aspectRatio:"10/7", width:"100%"}}
-          image={data.images[0]}
+          image={data.images[0] ?? "/images/logo_nobg.png"}
           alt={data.title}
           onClick={()=>router.push(`/${teamId}/post/${type}/${data.id}`)}
         />
@@ -157,7 +159,7 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
         <h4 className="font-semibold line-clamp-1">
           {data.title}
         </h4>
-        <p className="text-xs">
+        <p className="text-xs mb-2">
           마지막 변경일: {toYYYYMMDD_HHMM(data.program_saved_at)}
         </p>
         <div>
@@ -165,21 +167,25 @@ const ProgramThumbnail = ({data, reloadPage, type="programs"}) => {
             <p className="text-xs">신청 현황 불러오는 중..</p>
             :
             <>
-              <div className="flex items-center">
-                {unreadCount===0 && unapprovedCount===0
-                  && <p className="text-xs text-green-800">모든 항목이 확인되었습니다.</p>
-                }
-                {unreadCount!==0 &&
-                  <p className="text-xs mr-4 text-red-700">읽지 않음: {unreadCount}</p>
-                }
-                {unapprovedCount!==0 &&
-                  <p className="text-xs text-blue-700">미승인: {unapprovedCount}</p>
-                }
-              </div>
-              <div className="flex items-center">
-                <p className="text-xs mr-4">오늘 신청자: {daily}명</p>
-                <p className="text-xs">이번주 신청자: {weekly}명</p>  
-              </div>
+              {type==="programs" &&
+              <>
+                <div className="flex items-center">
+                  {unreadCount===0 && (unapprovedCount===0 || data.program_post_data?.autoConfirm ) 
+                    && <p className="text-xs text-green-800">모든 항목이 확인되었습니다.</p>
+                  }
+                  {unreadCount!==0 &&
+                    <p className="text-xs mr-4 text-red-700">읽지 않음: {unreadCount}</p>
+                  }
+                  {unapprovedCount!==0 && !data.program_post_data?.autoConfirm  &&
+                    <p className="text-xs text-blue-700">미승인: {unapprovedCount}</p>
+                  }
+                </div>
+                <div className="flex items-center">
+                  <p className="text-xs mr-4">오늘 신청자: {daily}명</p>
+                  <p className="text-xs">이번주 신청자: {weekly}명</p>  
+                </div>
+              </>
+              }
             </>
           }
 

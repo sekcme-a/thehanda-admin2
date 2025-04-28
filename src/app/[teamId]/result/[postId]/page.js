@@ -82,7 +82,7 @@ const Result = () => {
         ...formData
       ])
 
-      const fetchedResult = await fetchResult(postId)
+      const fetchedResult = await fetchResult(postId, postData.program_post_data.autoConfirm)
 
       if(!fetchedResult || fetchResult.length===0) return;
       const refinedResult = await refineResult(fetchedResult)
@@ -262,7 +262,7 @@ ${nameList}`)){
           폼 결과 확인
         </h3>
         <p className="text-sm font-bold mb-1">{`${post.title} 프로그램의 신청결과입니다.`}</p>
-
+        {post.program_post_data.autoConfirm && <p className="text-xs">*자동 승인이 적용된 프로그램입니다.</p>}
         <Button
           variant="contained"
           size="small"

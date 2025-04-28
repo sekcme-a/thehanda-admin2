@@ -19,8 +19,12 @@ const SignInWithIdAndPw = () => {
   
   const signIn = async () => {
     try{
+      if(pw.length < 8)
+        alert("비밀번호가 너무 짧습니다.")
       if(pw!==confirmPw)
         alert("재확인 비밀번호가 다릅니다.")
+      if(email===""|| email===" ")
+        alert("이메일을 입력해주세요.")
       else{
         const isEmailExist = await isEmailExists(email)
         if(isEmailExist){
@@ -39,6 +43,7 @@ const SignInWithIdAndPw = () => {
   return(
     <>
       <TextField
+        sx={{mt: 2}}
         label="이메일"
         variant="outlined"
         value={email}
@@ -52,6 +57,7 @@ const SignInWithIdAndPw = () => {
         label="비밀번호"
         variant="outlined"
         className="mt-5"
+        sx={{mt: 2}}
         value={pw}
         onChange={e=>setPw(e.target.value)}
         size="small"
@@ -77,6 +83,7 @@ const SignInWithIdAndPw = () => {
         label="비밀번호 재확인"
         variant="outlined"
         className="mt-5"
+        sx={{mt: 2, mb: 2}}
         value={confirmPw}
         onChange={e=>setConfirmPw(e.target.value)}
         size="small"
@@ -111,6 +118,7 @@ const SignInWithIdAndPw = () => {
         <Button
           onClick={()=>router.back()}
           className="font-bold mt-3"
+          sx={{mt: 1}}
         >
           {`< 뒤로가기`}
         </Button>
