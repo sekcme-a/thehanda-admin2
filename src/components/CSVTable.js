@@ -1,185 +1,154 @@
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  Input,
+  InputAdornment,
+} from "@mui/material";
+import { CSVLink } from "react-csv";
 
+import ImportExportIcon from "@mui/icons-material/ImportExport";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
+import styles from "./CSVTable.module.css";
 
-import { useEffect, useState } from "react"
+/**
+ * CSVTable 컴포넌트
+ *
+ * @param {string} title - CSV 파일명
+ * @param {Array} headers - [{ key, label }]
+ * @param {Array} data - [{ id, key1, key2, ... }]
+ * @param {function} onItemClick - 각 항목 클릭시 콜백
+ * @param {boolean} hasCheck - 체크박스 표시 여부
+ * @param {Array} checkedList - 선택된 id 리스트
+ * @param {function} setCheckedList - 선택 리스트 갱신 함수
+ */
+const CSVTable = ({
+  title,
+  headers,
+  data,
+  onItemClick,
+  hasCheck,
+  checkedList,
+  setCheckedList,
+}) => {
+  const [isAllChecked, setIsAllChecked] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredData, setFilteredData] = useState(data);
 
+  useEffect(() => {
+    setFilteredData(data);
+  }, [data]);
 
-import { Button, Checkbox, Select, MenuItem, TextField, CardContent, Switch } from "@mui/material"
-import styles from "./CSVTable.module.css"
+  const handleCheckAll = (e) => {
+    const checked = e.target.checked;
+    setCheckedList(checked ? data.map((item) => item.id) : []);
+    setIsAllChecked(checked);
+  };
 
+  const handleCheckItem = (e, itemId) => {
+    const checked = e.target.checked;
+    setCheckedList((prev) =>
+      checked ? [...prev, itemId] : prev.filter((id) => id !== itemId)
+    );
+    if (!checked) setIsAllChecked(false);
+  };
 
-import { FormControl, InputLabel, Input, InputAdornment } from "@mui/material"
-
-import { CSVDownload, CSVLink } from "react-csv";
-
-import ImportExportIcon from '@mui/icons-material/ImportExport';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-
-
-/*
-title: 제목.csv 추출
-headers: [{key, label}, ...]
-data: [{id:고유 아이디, key이름: 해당key의 데이터, key이름2: ....}]
-onItemClick: 아이템을 눌렀을때 이벤트
-hasCheck: 항목 선택이 있는지, false 면 및의 내용 작성필요없음
-checkedList, setCheckedList: useState 써서 바로 적용
-*/
-
-const CSVTable = ({title, headers, data, onItemClick, hasCheck,  checkedList, setCheckedList}) => {
-    const [isAllChecked, setIsAllChecked] = useState(false)
-    const [searchInput, setSearchInput] = useState("")
-    const [isExportOnlyChecked, setIsExportOnlyChecked] = useState(false)
-
-    const [list, setList] = useState(data)
-
-    useEffect(() => {
-      setList(data)
-    },[data])
-
-    const handleIsAllCheckChange = (e) => {
-      setCheckedList(e.target.checked ? data.map(item => item.id) : []);
-      
-      setIsAllChecked(e.target.checked)
+  const handleSearch = (value) => {
+    setSearchInput(value);
+    if (!value.trim()) {
+      setFilteredData(data);
+      return;
     }
 
-    const onCheckChange = (e,item) => {
-        if(e.target.checked && !checkedList.includes(item.id)){
-            setCheckedList(prevCheckedList => ([...prevCheckedList, item.id]))
-        } else if(!e.target.checked){
-            const updatedList = checkedList.filter(checkedItem => checkedItem !== item.id);
-            setCheckedList(updatedList);
-            setIsAllChecked(false)
-        }
-    }
+    const lowerValue = value.toLowerCase();
+    const results = data.filter((item) =>
+      Object.values(item).some((v) =>
+        v?.toString().toLowerCase().includes(lowerValue)
+      )
+    );
+    setFilteredData(results);
+  };
 
-    const handleSearchInput = (value) => {
-      setSearchInput(value)
-      if(value===""){
-        setList(data)
-      } else {
-        let searchResults = [];
-        for (let i = 0; i < data.length; i++) {
-          // 객체의 각 키를 순회하면서 검색 수행
-          let dataKeys = Object.keys(data[i]);
-          
-          // 각 키에서 검색 수행
-          for (let j = 0; j < dataKeys.length; j++) {
-              // 현재 키의 값을 소문자로 변환하여 검색어와 비교
-              if (data[i][dataKeys[j]].toString().toLowerCase().includes(value.toLowerCase())) {
-                  // 검색어를 포함하는 경우, 결과 배열에 추가하고 루프 종료
-                  searchResults.push(data[i]);
-                  break;
-              }
-          }
-        }
-        setList(searchResults)
-      }
-    }
-   
-    return(
-        <div className={styles.root_container}>
-          <div className={styles.remote_container}>
-            <FormControl sx={{ m: 1 }} letiant="standard">
-              <Input
-                id="standard-adornment-amount"
-                value={searchInput}
-                onChange={(e)=>handleSearchInput(e.target.value)}
-                startAdornment={<InputAdornment position="start"><SearchRoundedIcon /></InputAdornment>}
-              />
-            </FormControl>
-            <Button  variant="contained" size="small" style={{backgroundColor:"rgb(0, 98, 196)" }}  sx={{ml:"10px"}}> 
-              <ImportExportIcon style={{fontSize:"20px", marginRight:"4px"}}/>
-              <CSVLink 
-                headers={headers} 
-                data={ list}
-                filename={`${title}.csv`}
-                target="_blank"
-                style={{color:"white"}}
-              >
-                엑셀로 추출
-              </CSVLink>
-            </Button> 
-            {/* <p>현재 목록에 나오는 사용자들만 추출됩니다.</p> */}
+  return (
+    <div className={styles.root_container}>
+      <div className={styles.remote_container}>
+        <FormControl sx={{ m: 1 }}>
+          <Input
+            value={searchInput}
+            onChange={(e) => handleSearch(e.target.value)}
+            startAdornment={
+              <InputAdornment position="start">
+                <SearchRoundedIcon />
+              </InputAdornment>
+            }
+          />
+        </FormControl>
 
-            
-            {/* <div className={styles.switch_container}>
-              <Switch
-                size="small"
-                checked={isExportOnlyChecked}
-                onChange={(e)=>setIsExportOnlyChecked(e.target.checked)}
-              />
-              <p>{isExportOnlyChecked ? "체크된 사용자만 추출":"현재 목록에 나오는 사용자만 추출"}</p>
-            </div> */}
-          </div>
+        <Button
+          variant="contained"
+          size="small"
+          sx={{ ml: 2, backgroundColor: "rgb(0, 98, 196)" }}
+        >
+          <ImportExportIcon sx={{ fontSize: 20, mr: 0.5 }} />
+          <CSVLink
+            headers={headers}
+            data={filteredData}
+            filename={`${title}.csv`}
+            target="_blank"
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            엑셀로 추출
+          </CSVLink>
+        </Button>
+      </div>
 
+      <div className={styles.main_container} style={{ marginTop: 10 }}>
+        <table>
+          <thead>
+            <tr>
+              {hasCheck && (
+                <th className={styles.check}>
+                  <Checkbox checked={isAllChecked} onChange={handleCheckAll} />
+                </th>
+              )}
+              {headers.map(({ label }, idx) => (
+                <th key={idx} className={styles.header_item}>
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.map((item) => (
+              <tr key={item.id}>
+                {hasCheck && (
+                  <td className={styles.check}>
+                    <Checkbox
+                      checked={checkedList.includes(item.id)}
+                      onChange={(e) => handleCheckItem(e, item.id)}
+                      disabled={item.deleted}
+                    />
+                  </td>
+                )}
+                {headers.map(({ key }, i) => (
+                  <td key={i} onClick={() => onItemClick(item)}>
+                    {typeof item[key] === "string" ||
+                    typeof item[key] === "number"
+                      ? item[key]?.toString().length > 30
+                        ? item[key].toString().slice(0, 30) + "..."
+                        : item[key]
+                      : "-"}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
-
-          <div className={styles.main_container} style={{marginTop:"10px"}}>
-
-
-
-
-
-          <table >
-              <thead>
-                  <tr>
-                    {hasCheck &&
-                      <th className={styles.check}>
-                          <Checkbox
-                            checked={isAllChecked}
-                            onChange={handleIsAllCheckChange}
-                            style={{
-                                color: isAllChecked ? 'white' : 'initial', // check color
-                                '&.MuiCheckboxRoot': {
-                                  backgroundColor: isAllChecked ? 'black' : 'initial', // checkbox background color
-                                  borderColor: isAllChecked ? 'white' : 'initial', // checkbox border color
-                                },
-                              }}
-                          />
-                      </th>
-                    }
-
-                    {headers?.map((item, index)=>{
-                        return(
-                            <th key={index} className={styles.header_item}>
-                                {item.label}
-                            </th>
-                        )
-                    })}
-                  
-                  </tr>
-              </thead>
-
-              <tbody>
-                  {list?.map((item, index)=>{
-                      return(
-                          <tr key={index}>
-                              {hasCheck &&
-                                  <td className={styles.check}>
-                                      <Checkbox
-                                          checked = {checkedList.includes(item.id)}
-                                          onChange = {(event) => onCheckChange(event, item)}
-                                          disabled = {item.deleted}
-                                      />
-                                  </td>
-                              }
-                              {headers.map((head, index2)=>{
-                                  if(typeof item[head.key] === "string" || "number")
-                                  return(
-                                      <td key={index2} onClick={()=>onItemClick(item)}>
-                                          {item[head.key]?.length>30 ? `${item[head.key].substr(0,30)}...` : item[head.key]}
-                                      </td>
-                                  )
-                                  else return(<td key={index2}>-</td>)
-                              })}
-                          </tr>
-                      )
-                  })}
-              </tbody>
-          </table>
-        </div>
-        </div>
-    )
-}
-
-export default CSVTable
+export default CSVTable;

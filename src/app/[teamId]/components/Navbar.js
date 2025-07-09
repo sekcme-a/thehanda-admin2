@@ -1,31 +1,38 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
-import { List, ListItemButton, ListItemIcon, ListItemText, Collapse, Drawer, IconButton } from '@mui/material';
-import { ExpandLess, ExpandMore, Menu } from '@mui/icons-material';
-import GroupIcon from '@mui/icons-material/Group';
-import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { useData } from '@/provider/DataProvider';
+import React, { useState } from "react";
+import {
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  Drawer,
+  IconButton,
+} from "@mui/material";
+import { ExpandLess, ExpandMore, Menu } from "@mui/icons-material";
+import GroupIcon from "@mui/icons-material/Group";
+import AccountBoxOutlinedIcon from "@mui/icons-material/AccountBoxOutlined";
+import Diversity3Icon from "@mui/icons-material/Diversity3";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { useData } from "@/provider/DataProvider";
 
-
-import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined';
-import EditIcon from '@mui/icons-material/Edit';
-import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import BallotOutlinedIcon from '@mui/icons-material/BallotOutlined';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import CurrencyRubleIcon from '@mui/icons-material/CurrencyRuble';
-
+import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
+import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import PostAddOutlinedIcon from "@mui/icons-material/PostAddOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import BallotOutlinedIcon from "@mui/icons-material/BallotOutlined";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import CurrencyRubleIcon from "@mui/icons-material/CurrencyRuble";
+import ContactSupportIcon from "@mui/icons-material/ContactSupport";
 
 const NavBar = () => {
-  const router = useRouter()
-  const {teamId} = useParams()
-  const {myTeam} = useData()
+  const router = useRouter();
+  const { teamId } = useParams();
+  const { myTeam } = useData();
   const [openedItem, setOpenedItem] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -38,62 +45,61 @@ const NavBar = () => {
   };
 
   const onClick = (path) => {
-    router.push(`/${teamId}/${path}`)
+    router.push(`/${teamId}/${path}`);
   };
 
   const drawerContent = (
     <List>
       <div className="flex items-center px-5">
-        {myTeam.image &&
-          <img
-            width={50} height={50}
-            src={myTeam?.image}
-            alt="프로필 사진"
-          />
-        }
-        <div className='ml-3'>
-          <p className='font-bold text-purple-950 text-sm'>더한다 +</p>
-          <p className='font-bold leading-none text-sm'>{myTeam?.name}</p>
+        {myTeam.image && (
+          <img width={50} height={50} src={myTeam?.image} alt="프로필 사진" />
+        )}
+        <div className="ml-3">
+          <p className="font-bold text-purple-950 text-sm">더한다 +</p>
+          <p className="font-bold leading-none text-sm">{myTeam?.name}</p>
         </div>
       </div>
 
-            {/* 대쉬보드 */}
-      <ListItemButton onClick={() => onClick('dashboard')}>
+      {/* 대쉬보드 */}
+      <ListItemButton onClick={() => onClick("dashboard")}>
         <ListItemIcon>
           <DashboardRoundedIcon />
         </ListItemIcon>
         <ListItemText primary="대쉬보드" className="font-bold" />
       </ListItemButton>
 
-      <ListItemButton onClick={() => onClick('points')}>
-          <ListItemIcon>
-            <CurrencyRubleIcon />
-          </ListItemIcon>
-          <ListItemText primary="한다 포인트" />
+      <ListItemButton onClick={() => onClick("points")}>
+        <ListItemIcon>
+          <CurrencyRubleIcon />
+        </ListItemIcon>
+        <ListItemText primary="한다 포인트" />
       </ListItemButton>
-
-
-
 
       {/* 팀 관리 */}
       <ListItemButton onClick={() => handleItemClick(1)}>
         <ListItemIcon>
           <GroupIcon />
         </ListItemIcon>
-        <ListItemText primary="팀 관리" sx={{pr:4}} className="font-bold"/>
+        <ListItemText primary="팀 관리" sx={{ pr: 4 }} className="font-bold" />
         {openedItem === 1 ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
       <Collapse in={openedItem === 1} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4, pr: 4 }} onClick={() => onClick('team/profile')}>
+          <ListItemButton
+            sx={{ pl: 4, pr: 4 }}
+            onClick={() => onClick("team/profile")}
+          >
             <ListItemIcon>
               <AccountBoxOutlinedIcon />
             </ListItemIcon>
-            <ListItemText primary="팀 프로필" className="font-bold"/>
+            <ListItemText primary="팀 프로필" className="font-bold" />
           </ListItemButton>
 
-          <ListItemButton sx={{ pl: 4, pr: 4 }} onClick={() => onClick('team/manage')}>
+          <ListItemButton
+            sx={{ pl: 4, pr: 4 }}
+            onClick={() => onClick("team/manage")}
+          >
             <ListItemIcon>
               <Diversity3Icon />
             </ListItemIcon>
@@ -102,19 +108,17 @@ const NavBar = () => {
         </List>
       </Collapse>
 
-
-
-      <ListItemButton onClick={()=>handleItemClick(0)}>
+      <ListItemButton onClick={() => handleItemClick(0)}>
         <ListItemIcon>
           <PersonOutlineIcon />
         </ListItemIcon>
         <ListItemText primary="사용자 관리" />
-        {openedItem===0? <ExpandLess /> : <ExpandMore />}
+        {openedItem === 0 ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
-      <Collapse in={openedItem===0} timeout="auto" unmountOnExit>
+      <Collapse in={openedItem === 0} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("users")}>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => onClick("users")}>
             <ListItemIcon>
               <BallotOutlinedIcon />
             </ListItemIcon>
@@ -123,64 +127,67 @@ const NavBar = () => {
         </List>
       </Collapse>
 
-
-       <ListItemButton onClick={()=>handleItemClick(2)}>
+      <ListItemButton onClick={() => handleItemClick(2)}>
         <ListItemIcon>
           <PostAddOutlinedIcon />
         </ListItemIcon>
         <ListItemText primary="게시물 관리" />
-        {openedItem===2 ? <ExpandLess /> : <ExpandMore />}
+        {openedItem === 2 ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
-      <Collapse in={openedItem===2} timeout="auto" unmountOnExit>
+      <Collapse in={openedItem === 2} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("post/programs")}>
+          <ListItemButton
+            sx={{ pl: 4 }}
+            onClick={() => onClick("post/programs")}
+          >
             <ListItemIcon>
               <EditIcon />
             </ListItemIcon>
             <ListItemText primary="프로그램 관리" />
           </ListItemButton>
         </List>
-        {/* <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("schedule/programSchedule")}>
+        <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => onClick("post/storys")}>
             <ListItemIcon>
-              <CalendarMonthOutlinedIcon />
+              <AutoStoriesOutlinedIcon />
             </ListItemIcon>
-            <ListItemText primary="프로그램 스케쥴" />
+            <ListItemText primary="스토리 관리" />
           </ListItemButton>
-        </List> */}
-          <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("post/storys")}>
-              <ListItemIcon>
-                <AutoStoriesOutlinedIcon />
-              </ListItemIcon>
-              <ListItemText primary="스토리 관리" />
-            </ListItemButton>
-          </List>
+        </List>
 
-          <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 4 }} onClick={()=>onClick("post/announcements")}>
-              <ListItemIcon>
-                <CampaignOutlinedIcon />
-              </ListItemIcon>
-              <ListItemText primary="공지사항 관리" />
-            </ListItemButton>
-          </List>
+        <List component="div" disablePadding>
+          <ListItemButton
+            sx={{ pl: 4 }}
+            onClick={() => onClick("post/announcements")}
+          >
+            <ListItemIcon>
+              <CampaignOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText primary="공지사항 관리" />
+          </ListItemButton>
+        </List>
+      </Collapse>
 
-        </Collapse>
-
-      
+      <ListItemButton onClick={() => onClick("contact")}>
+        <ListItemIcon>
+          <ContactSupportIcon />
+        </ListItemIcon>
+        <ListItemText primary="문의관리" className="font-bold" />
+      </ListItemButton>
     </List>
   );
 
   return (
     <div className="flex">
       {/* PC Navbar */}
-      <div className="
+      <div
+        className="
         hidden md:flex 
         bg-white border-r border-gray-200
        
         h-screen
-      ">
+      "
+      >
         {drawerContent}
       </div>
 
@@ -195,8 +202,8 @@ const NavBar = () => {
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }}
           sx={{
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: 240,
             },
           }}

@@ -49,7 +49,7 @@ export default function NotificationProvider({ children }) {
   //   },
   const sendExpoSupabaseNotifications = async (
     teamId,
-    userList,
+    userList, //[{userId}]
     notificationData,
     notificationType,
     options = {
@@ -87,6 +87,8 @@ export default function NotificationProvider({ children }) {
 
       setAllCount(userList.length);
 
+      console.log(userList);
+
       let triedUserId = [];
       let successCount = 0;
       for (const user of userList) {
@@ -99,21 +101,29 @@ export default function NotificationProvider({ children }) {
               `${user.displayName}(${user.realName})님에게 알림을 전송합니다.`
             );
 
-            const notificationId =
-              await sendSupabaseNotificationAndGetNotificationId({
-                ...notificationData,
-                receiver_id: user.userId,
-              });
+            let notificationId;
+            if (!options.onlyExpo) {
+              notificationId =
+                await sendSupabaseNotificationAndGetNotificationId({
+                  ...notificationData,
+                  receiver_id: user.userId,
+                });
+            }
 
             if (!options.onlySupabase) {
-              const isNotificationEnabled = await isNotificationEnabledForType(
-                user.userId,
-                notificationType
-              );
-              if (!isNotificationEnabled)
-                throw "해당 유저의 알림 설정이 꺼져있습니다.";
+              if (notificationType) {
+                const isNotificationEnabled =
+                  await isNotificationEnabledForType(
+                    user.userId,
+                    notificationType
+                  );
+                if (!isNotificationEnabled)
+                  throw "해당 유저의 알림 설정이 꺼져있습니다.";
+              }
 
               const pushToken = await fetchPushToken(user.userId);
+
+              console.log(pushToken);
 
               await sendExpoNotification(
                 pushToken,
@@ -158,6 +168,7 @@ export default function NotificationProvider({ children }) {
       setProgress("전송 완료.");
       return true;
     } catch (error) {
+      console.log(error);
       alert(error);
       return false;
     } finally {
